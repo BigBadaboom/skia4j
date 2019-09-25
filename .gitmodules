@@ -1,3 +1,6 @@
 [submodule "external/skia"]
 	path = external/skia
 	url = https://github.com/google/skia
+[submodule "external/depot_tools"]
+	path = external/depot_tools
+	url = https://chromium.googlesource.com/chromium/tools/depot_tools.git

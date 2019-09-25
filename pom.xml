@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.caverock</groupId>
@@ -7,7 +7,7 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>skia4j</name>
+  <name>Skia4J</name>
   <url>http://maven.apache.org</url>
 
   <properties>
@@ -21,15 +21,68 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-    	<groupId>net.java.dev.jna</groupId>
-    	<artifactId>jna</artifactId>
-    	<version>5.0.0</version>
-    </dependency>
-    <dependency>
-    	<groupId>net.java.dev.jna</groupId>
-    	<artifactId>jna-platform</artifactId>
-    	<version>5.0.0</version>
-    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>native-maven-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <!-- trigger javah -->
+          <javahOS>win32</javahOS>
+          <compilerProvider>msvc</compilerProvider>
+          <sources>
+            <source>
+              <directory>native/src/main/native</directory>
+              <fileNames>
+                <fileName>jni_example.c</fileName>
+              </fileNames>
+            </source>
+          </sources>
+          <compilerStartOptions>
+            <compilerStartOption>-fPIC</compilerStartOption>
+          </compilerStartOptions>
+          <linkerStartOptions>
+            <linkerStartOption>-shared</linkerStartOption>
+          </linkerStartOptions>
+          <!--linkerOutputDirectory>${project.build.directory}</linkerOutputDirectory> 
+            <linkerFinalName>libjniExampleNative</linkerFinalName -->
+        </configuration>
+        <executions>
+          <execution>
+            <id>javah</id>
+            <phase>generate-sources</phase>
+            <configuration>
+              <javahOS>win32</javahOS>
+              <javahProvider>default</javahProvider>
+              <!--
+              <javahOutputDirectory>${project.build.directory}/custom-javah</javahOutputDirectory>
+              -->
+              <javahOutputDirectory>${project.basedir}/native/src/main/native</javahOutputDirectory>
+              <workingDirectory>${basedir}</workingDirectory>
+              <javahOutputFileName>SkiaJNI.h</javahOutputFileName>
+              <javahClassNames>
+                <javahClassName>com.caverock.skia4j.Canvas</javahClassName>
+                <javahClassName>com.caverock.skia4j.Bitmap</javahClassName>
+              </javahClassNames>
+            </configuration>
+            <goals>
+              <goal>javah</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

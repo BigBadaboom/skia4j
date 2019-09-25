@@ -1,0 +1,39 @@
+
+
+Project layout:
+http://www.tricoder.net/blog/?p=197
+
+Maven (Native) Compiler Plugin:
+https://maven.apache.org/plugins/maven-compiler-plugin/
+https://www.mojohaus.org/maven-native/native-maven-plugin/usage.html
+
+
+https://github.com/aosp-mirror/platform_frameworks_base/blob/master/core/jni/android_graphics_Canvas.cpp
+https://android.googlesource.com/platform/frameworks/base/+/master/core/jni/
+https://skia.org/user/api/SkCanvas_Reference#Canvas
+
+
+
+
+https://github.com/mono/SkiaSharp/blob/605946352e543ee39345bb4969db28ddf2ae4977/cake/BuildExternals.cake#L95-L101
+
+
+
+JNI book and examples:
+D:\Users\Paul\Development\Vector Editor\JNI
+
+https://thebreakfastpost.com/2012/01/21/wrapping-a-c-library-with-jni-introduction/
+
+Allocating native memory from the Java heap:
+https://www.usenix.org/legacy/event/usenix07/posters/sorensen.pdf
+
+
+http://jeffq.com/blog/an-introduction-to-native-backed-objects-with-the-android-ndk/
+
+https://android-developers.googleblog.com/2011/11/jni-local-reference-changes-in-ics.html
+
+
+
+SkiaSharp
+
+https://groups.google.com/forum/#!msg/skia-discuss/844ZSb9Pr2U/CenzbhacCAAJ
