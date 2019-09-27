@@ -2,11 +2,38 @@ package com.caverock.skia4j;
 
 public class SkPaint  implements AutoCloseable
 {
-   private int      color;
-   private boolean  isAntialias;
+   private int      color = 0xff000000;   // Opaque black
+   private boolean  isAntialias = false;
+   private boolean  isDither = false;
+   private Cap      strokeCap = Cap.Butt;
+   private Join     strokeJoin = Join.Miter;
+   private float    strokeMiter = 4f;
+   private float    strokeWidth = 0f;
+   private Style    style = Style.Fill;
 
    // Reference to the native sk_image_info object
    private long  nRef = 0;
+
+
+   public enum Style {
+      Fill,
+      Stroke,
+      StrokeAndFill
+   }
+
+
+   public enum Cap {
+      Butt,
+      Round,
+      Square
+   }
+
+
+   private enum Join {
+      Miter,
+      Round,
+      Bevel
+   }
 
 
    //--------------------------------------------------------------------------
@@ -68,7 +95,6 @@ public class SkPaint  implements AutoCloseable
    //--------------------------------------------------------------------------
 
 
-
    public void  setAntialias(boolean isAntialias)
    {
       nSkPaintSetAntialias(nRef, isAntialias);
@@ -81,16 +107,117 @@ public class SkPaint  implements AutoCloseable
    }
 
 
+   //--------------------------------------------------------------------------
+
+
+   public int  getColor()
+   {
+      return this.getColor();
+   }
+
    public void  setColor(int color)
    {
       nSkPaintSetColor(nRef, color);
       this.color = color;
    }
 
-   public int  getColor()
+
+   //--------------------------------------------------------------------------
+
+
+   public void  setDither(boolean isDither)
    {
-      return this.getColor();
+      nSkPaintSetDither(nRef, isDither);
+      this.isDither = isDither;
    }
+
+
+   public boolean  isDither()
+   {
+      return isDither;
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
+   public Cap  getStrokeCap()
+   {
+      return strokeCap;
+   }
+
+
+   public void  setStrokeCap(Cap strokeCap)
+   {
+      nSkPaintSetStrokeCap(nRef, strokeCap.ordinal());
+      this.strokeCap = strokeCap;
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
+   public Join  getStrokeJoin()
+   {
+      return strokeJoin;
+   }
+
+
+   public void  setStrokeJoin(Join strokeJoin)
+   {
+      nSkPaintSetStrokeJoin(nRef, strokeJoin.ordinal());
+      this.strokeJoin = strokeJoin;
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
+   public float  getStrokeMiter()
+   {
+      return strokeMiter;
+   }
+
+
+   public void  setStrokeMiter(float miterLimit)
+   {
+      nSkPaintSetStrokeMiter(nRef, miterLimit);
+      this.strokeMiter = miterLimit;
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
+   public float  getStrokeWidth()
+   {
+      return strokeWidth;
+   }
+
+
+   public void  setStrokeWidth(float strokeWidth)
+   {
+      nSkPaintSetStrokeWidth(nRef, strokeWidth);
+      this.strokeWidth = strokeWidth;
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
+   public Style  getStyle()
+   {
+      return style;
+   }
+
+
+   public void  setStyle(Style style)
+   {
+      nSkPaintSetStyle(nRef, style.ordinal());
+      this.style = style;
+   }
+
+
 
 
 
@@ -121,118 +248,14 @@ public class SkPaint  implements AutoCloseable
    //SK_API void sk_paint_delete(sk_paint_t*);
    native private static void  nSkPaintDelete(long ref);
 
-   /*
-    * Return true iff the paint has antialiasing enabled.
-    */
-   //SK_API bool sk_paint_is_antialias(const sk_paint_t*);
-
-   /*
-    * Set to true to enable antialiasing, false to disable it on this
-    * sk_paint_t.
-    */
-   //SK_API void sk_paint_set_antialias(sk_paint_t*, bool);
    native private static void  nSkPaintSetAntialias(long ref, boolean isAntialias);
-
-   /*
-    * Return the paint's current drawing color.
-    */
-   //SK_API sk_color_t sk_paint_get_color(const sk_paint_t*);
-
-   /*
-    * Set the paint's current drawing color.
-    */
-   //SK_API void sk_paint_set_color(sk_paint_t*, sk_color_t);
    native private static void  nSkPaintSetColor(long ref, int color);
+   native private static void  nSkPaintSetDither(long ref, boolean isDither);
+   native private static void  nSkPaintSetStrokeWidth(long ref, float width);
+   native private static void  nSkPaintSetStrokeMiter(long ref, float miterLimit);
+   native private static void  nSkPaintSetStrokeCap(long ref, int cap);
+   native private static void  nSkPaintSetStrokeJoin(long ref, int join);
+   native private static void  nSkPaintSetStyle(long ref, int style);
 
-   /* stroke settings */
-
-   /*
-    * Return true iff stroking is enabled rather than filling on this
-    * sk_paint_t.
-    */
-   //SK_API bool sk_paint_is_stroke(const sk_paint_t*);
-
-   /*
-    * Set to true to enable stroking rather than filling with this
-    * sk_paint_t.
-    */
-   //SK_API void sk_paint_set_stroke(sk_paint_t*, bool);
-
-   /*
-    * Return the width for stroking.  A value of 0 strokes in hairline mode.
-    */
-   //SK_API float sk_paint_get_stroke_width(const sk_paint_t*);
-
-   /*
-    * Set the width for stroking.  A value of 0 strokes in hairline mode
-    * (always draw 1-pixel wide, regardless of the matrix).
-    */
-   //SK_API void sk_paint_set_stroke_width(sk_paint_t*, float width);
-
-   /*
-    * Return the paint's stroke miter value. This is used to control the
-    * behavior of miter joins when the joins angle is sharp.
-    */
-   //SK_API float sk_paint_get_stroke_miter(const sk_paint_t*);
-
-   /*
-    * Set the paint's stroke miter value. This is used to control the
-    * behavior of miter joins when the joins angle is sharp. This value
-    * must be >= 0.
-    */
-   //SK_API void sk_paint_set_stroke_miter(sk_paint_t*, float miter);
-
-   //typedef enum {
-   //   BUTT_SK_STROKE_CAP,
-   //   ROUND_SK_STROKE_CAP,
-   //   SQUARE_SK_STROKE_CAP
-   //} sk_stroke_cap_t;
-
-   /*
-    * Return the paint's stroke cap type, controlling how the start and
-    * end of stroked lines and paths are treated.
-    */
-   //SK_API sk_stroke_cap_t sk_paint_get_stroke_cap(const sk_paint_t*);
-
-   /*
-    * Set the paint's stroke cap type, controlling how the start and
-    * end of stroked lines and paths are treated.
-    */
-   //SK_API void sk_paint_set_stroke_cap(sk_paint_t*, sk_stroke_cap_t);
-
-   //typedef enum {
-   //   MITER_SK_STROKE_JOIN,
-   //   ROUND_SK_STROKE_JOIN,
-   //   BEVEL_SK_STROKE_JOIN
-   //} sk_stroke_join_t;
-
-   /*
-    * Return the paint's stroke join type, specifies the treatment that
-    * is applied to corners in paths and rectangles
-    */
-   //SK_API sk_stroke_join_t sk_paint_get_stroke_join(const sk_paint_t*);
-
-   /*
-    * Set the paint's stroke join type, specifies the treatment that
-    * is applied to corners in paths and rectangles
-    */
-   //SK_API void sk_paint_set_stroke_join(sk_paint_t*, sk_stroke_join_t);
-
-   /*
-    * Set the paint's shader to the specified parameter. This will automatically call unref() on
-    * any previous value, and call ref() on the new value.
-    */
-   //SK_API void sk_paint_set_shader(sk_paint_t*, sk_shader_t*);
-
-   /*
-    * Set the paint's maskfilter to the specified parameter. This will automatically call unref() on
-    * any previous value, and call ref() on the new value.
-    */
-   //SK_API void sk_paint_set_maskfilter(sk_paint_t*, sk_maskfilter_t*);
-
-   /*
-    *  Set the paint's xfermode to the specified parameter.
-    */
-   //SK_API void sk_paint_set_xfermode_mode(sk_paint_t*, sk_xfermode_mode_t);
 
 }

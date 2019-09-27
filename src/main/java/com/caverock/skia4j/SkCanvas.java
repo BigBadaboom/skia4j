@@ -31,6 +31,206 @@ public class SkCanvas
 
 
    //--------------------------------------------------------------------------
+   // Save and restore
+
+
+   /**
+    * This call saves the current matrix, clip, and drawFilter, and pushes a copy onto a private stack.
+    *
+    * Subsequent calls to {@link #translate()}, {@link #scale()}, {@link #rotate()}, {@link #skew()},
+    * {@link #concat()}, or {@link #clipRect()}, {@link #clipPath()} and {@link #setDrawFilter()} all
+    * operate on this copy. When the balancing call to {@link #restore()} is made, the previous matrix,
+    * clip, and drawFilter are restored.
+    * 
+    * @return The value to pass to {@link #restoreToCount()} to balance this {@code #save()}
+    */
+   public int  save()
+   {
+      return nSkCanvasSave(nRef);
+   }
+
+
+   /**
+    * This behaves the same as {@link #save()}, but in addition it
+    * allocates an off-screen botmap. All drawing calls are directed
+    * there, and only when the balancing call to {@link #restore()} is
+    * made is that off-screen transferred to the canvas (or the previous
+    * layer).
+    * 
+    * @param bounds (may be null) This rect, if non-null, is used as
+    *                   a hint to limit the size of the offscreen, and
+    *                   thus drawing may be clipped to it, though that
+    *                   clipping is not guaranteed to happen. If exact
+    *                   clipping is desired, use {@link #clipRect(}).
+    * @param paint (may be null) The paint is copied, and is applied
+    *                    to the offscreen when {@code restore()} is
+    *                    called.
+    * 
+    * @return The value to pass to {@link #restoreToCount()} to balance this {@code #save()}
+    */
+   public int  saveLayer(SkRect bounds, SkPaint paint)
+   {
+      long nativePaintRef = (paint != null) ? paint.nativeRef() : 0; 
+      if (bounds == null)
+         return nSkCanvasSaveLayer(nRef, nativePaintRef);
+      else
+         return nSkCanvasSaveLayer(nRef, bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom(), nativePaintRef);
+   }
+
+
+   /**
+    * This behaves the same as {@link #save()}, but in addition it
+    * allocates an off-screen botmap. All drawing calls are directed
+    * there, and only when the balancing call to {@link #restore()} is
+    * made is that off-screen transferred to the canvas (or the previous
+    * layer).
+    * 
+    * @param bounds (may be null) This rect, if non-null, is used as
+    *                   a hint to limit the size of the offscreen, and
+    *                   thus drawing may be clipped to it, though that
+    *                   clipping is not guaranteed to happen. If exact
+    *                   clipping is desired, use {@link #clipRect(}).
+    * @param alpha This opacity value is applied to the offscreen buffer
+    *              when {@code restore()} is called.  The alpha value
+    *              must be between 0 and 255.
+    * 
+    * @return The value to pass to {@link #restoreToCount()} to balance this {@code #save()}
+    */
+   public int  saveLayerAlpha(SkRect bounds, int alpha)
+   {
+      if (bounds == null)
+         return nSkCanvasSaveLayerAlpha(nRef, alpha);
+      else
+         return nSkCanvasSaveLayerAlpha(nRef, bounds.getLeft(), bounds.getTop(), bounds.getRight(), bounds.getBottom(), alpha);
+   }
+
+
+   /**
+    * <p>Returns the number of matrix/clip states on the SkCanvas' private stack.</p>
+    * 
+    * <p>This will equal: number of {@link #save()} calls - {@link #restore()} calls + 1. The save count on a new canvas is 1.</p>
+    * 
+    * @return the count
+    */
+   public int  getSaveCount()
+   {
+      return nSkCanvasGetSaveCount(nRef);
+   }
+
+
+   /**
+    * This call balances a previous call to {@link #save()} or
+    * {@link saveLayer()}, and is used to remove all modifications to
+    * the matrix and clip state since the last save call.  It is an
+    * error to call {@link #restore()} more times than {@code save()} and
+    * {@code saveLayer()} were called.
+    */
+   public void  restore()
+   {
+      nSkCanvasRestore(nRef);
+   }
+
+
+   /**
+    * This call balances a previous call to {@link #save()} or
+    * {@link saveLayer()}, and is used to remove all modifications to
+    * the matrix and clip state since the last save call.  It is an
+    * error to call {@link #restore()} more times than {@code save()} and
+    * {@code saveLayer()} were called.
+    */
+   public void  restoreToCount(int count)
+   {
+      nSkCanvasRestoreToCount(nRef, count);
+   }
+
+
+   //--------------------------------------------------------------------------
+   // Transformations
+
+
+   /**
+    * Preconcat the current coordinate transformation matrix with the
+    * specified translation.
+    * 
+    * @param dx The distance to translate in X
+    * @param dy The distance to translate in Y
+    */
+   public void  translate(float dx, float dy)
+   {
+      nSkCanvasTranslate(nRef, dx, dy);
+   }
+
+
+   /**
+    * Preconcat the current coordinate transformation matrix with the
+    * specified scale.
+    * 
+    * @param dx The amount to scale in X
+    * @param dy The amount to scale in Y
+    */
+   public void  scale(float sx, float sy)
+   {
+      nSkCanvasScale(nRef, sx, sy);
+   }
+
+
+   /**
+    * Preconcat the current coordinate transformation matrix with the
+    * specified rotation.
+    * 
+    * @param degrees The amount to rotate in degrees
+    */
+   public void  rotate(float degrees)
+   {
+      nSkCanvasRotate(nRef, degrees);
+   }
+   
+
+
+   /**
+    * Preconcat the current coordinate transformation matrix with the
+    * specified rotation.
+    * 
+    * @param degrees The amount to rotate in degrees
+    * @param px The X coord for the pivot point (unchanged by the rotation)
+    * @param py The Y coord for the pivot point (unchanged by the rotation)
+    */
+   public void  rotate(float degrees, float px, float py)
+   {
+      nSkCanvasRotate(nRef, degrees, px, py);
+   }
+
+
+   /**
+    * Preconcat the current coordinate transformation matrix with the
+    * specified skew.
+    * 
+    * @param sx The amount to skew in X
+    * @param sy The amount to skew in Y
+    */
+   public void  skew(float sx, float sy)
+   {
+      nSkCanvasSkew(nRef, sx, sy);
+   }
+
+
+   /**
+    * Preconcat the current coordinate transformation matrix with the
+    * specified matrix.
+    * 
+    * @param matrix The transform matrix to concatenate.
+    */
+   public void  concat(SkMatrix matrix) {
+      if (matrix == null)
+         return;
+      float[]  mat = matrix.getMatrix();
+      // More efficient to pass the array elements rather than unmarshalling in the C code
+      nSkCanvasConcat(nRef, mat[0], mat[1], mat[2], mat[3], mat[4], mat[5], mat[6], mat[7], mat[8]);
+   }
+
+
+   //--------------------------------------------------------------------------
+   // Drawing operations
 
 
    public void  drawColor(int color)
@@ -93,56 +293,43 @@ public class SkCanvas
    // Native methods
    // include/c/sk_canvas.h
 
-   /*
-    * Save the current matrix and clip on the canvas.  When the
-    * balancing call to sk_canvas_restore() is made, the previous matrix
-    * and clip are restored.
-    */
-   //SK_API void sk_canvas_save(sk_canvas_t*);
+   native private static int  nSkCanvasSave(long canvas);
+   
+   native private static int  nSkCanvasSaveLayer(long canvas, long paint);
+   native private static int  nSkCanvasSaveLayer(long canvas, float left, float top, float right, float bottom, long paint);
 
-   /*
-    * This behaves the same as sk_canvas_save(), but in addition it
-    * allocates an offscreen surface. All drawing calls are directed
-    * there, and only when the balancing call to sk_canvas_restore() is
-    * made is that offscreen transfered to the canvas (or the previous
-    * layer).
-    * @param sk_rect_t* (may be null) This rect, if non-null, is used as
-    *                   a hint to limit the size of the offscreen, and
-    *                   thus drawing may be clipped to it, though that
-    *                   clipping is not guaranteed to happen. If exact
-    *                   clipping is desired, use sk_canvas_clip_rect().
-    * @param sk_paint_t* (may be null) The paint is copied, and is applied
-    *                    to the offscreen when sk_canvas_restore() is
-    *                    called.
-    */
-   //SK_API void sk_canvas_save_layer(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
+   native private static int  nSkCanvasSaveLayerAlpha(long canvas, int alpha);
+   native private static int  nSkCanvasSaveLayerAlpha(long canvas, float left, float top, float right, float bottom, int alpha);
 
-   /*
-    * This call balances a previous call to sk_canvas_save() or
-    * sk_canvas_save_layer(), and is used to remove all modifications to
-    * the matrix and clip state since the last save call.  It is an
-    * error to call sk_canvas_restore() more times than save and
-    * save_layer were called.
-    */
-   //SK_API void sk_canvas_restore(sk_canvas_t*);
+   native private static int  nSkCanvasGetSaveCount(long canvas);
+
+   native private static void  nSkCanvasRestore(long canvas);
+
+   native private static void  nSkCanvasRestoreToCount(long canvas, int count);
+
 
    /*
     * Preconcat the current coordinate transformation matrix with the
     * specified translation.
     */
    //SK_API void sk_canvas_translate(sk_canvas_t*, float dx, float dy);
+   native private static void  nSkCanvasTranslate(long canvas, float dx, float dy);
 
    /*
     * Preconcat the current coordinate transformation matrix with the
     * specified scale.
     */
    //SK_API void sk_canvas_scale(sk_canvas_t*, float sx, float sy);
+   native private static void  nSkCanvasScale(long canvas, float sx, float sy);
 
    /*
     * Preconcat the current coordinate transformation matrix with the
     * specified rotation in degrees.
     */
    //SK_API void sk_canvas_rotate_degrees(sk_canvas_t*, float degrees);
+   native private static void  nSkCanvasRotate(long canvas, float degrees);
+
+   native private static void  nSkCanvasRotate(long canvas, float degrees, float px, float py);
 
    /*
     * Preconcat the current coordinate transformation matrix with the
@@ -155,12 +342,15 @@ public class SkCanvas
     * specified skew.
     */
    //SK_API void sk_canvas_skew(sk_canvas_t*, float sx, float sy);
+   native private static void  nSkCanvasSkew(long canvas, float sx, float sy);
 
    /*
     * Preconcat the current coordinate transformation matrix with the
     * specified matrix.
     */
    //SK_API void sk_canvas_concat(sk_canvas_t*, const sk_matrix_t*);
+   native private static void  nSkCanvasConcat(long canvas, float m0, float m1, float m2, float m3, float m4, float m5, float m6, float m7, float m8);
+
 
    /*
     * Modify the current clip with the specified rectangle.  The new
@@ -175,6 +365,7 @@ public class SkCanvas
     * path.
     */
    //SK_API void sk_canvas_clip_path(sk_canvas_t*, const sk_path_t*);
+
 
    /*
     * Fill the entire canvas (restricted to the current clip) with the
