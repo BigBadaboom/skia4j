@@ -1,2 +1,9 @@
 /target/
 /ABANDONED/
+/com_caverock_skia4j_SkCanvas.obj
+/com_caverock_skia4j_SkColorSpace.obj
+/com_caverock_skia4j_SkData.obj
+/com_caverock_skia4j_SkImage.obj
+/com_caverock_skia4j_SkImageInfo.obj
+/com_caverock_skia4j_SkPaint.obj
+/com_caverock_skia4j_SkSurface.obj
