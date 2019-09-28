@@ -4,125 +4,166 @@ public class SkImageInfo  implements AutoCloseable
 {
    private int           width;
    private int           height;
-   private SkColorType   colorType = SkColorType.Unknown;
-   private SkAlphaType   alphaType = SkAlphaType.Unknown;
-   private SkColorSpace  colorSpace = null;     // NYI
+   private SkColorType   colorType = SkColorType.kUnknown;
+   private SkAlphaType   alphaType = SkAlphaType.kUnknown;
+   private SkColorSpace  colorSpace = null;
 
    // Reference to the native sk_image_info object
    private long  nRef = 0;
 
 
-   //--------------------------------------------------------------------------
-
-
-   /**
-    * Describes the type and precision of values to use for colour components.
-    */
-   public enum SkColorType
-   {
-      Unknown(0),
-
-      /**
-       * A 32-bit color with the format RGBA.
-       */
-      Rgba8888(1),
-
-      /**
-       * A 32-bit color with the format BGRA.
-       */
-      Bgra8888(2),
-
-      /**
-       * An 8-bit alpha-only color.
-       */
-      Alpha8(3),
-
-      /**
-       * An opaque 8-bit grayscale color.
-       */
-      Gray8(4),
-
-      /**
-       * A 16 bit floating-point based color with the format RGBA.
-       */
-      RgbaF16(5),
-
-      /**
-       * A 32 bit floating-point based color with the format RGBA.
-       */
-      RgbaF32(6);
-
-
-
-      private int value = 0;
-      
-      private SkColorType(int val) {
-         this.value = val;
-      }
-   }
-
-
-   /**
-    * Describes how to interpret the alpha component of a pixel.
-    */
-   public enum SkAlphaType
-   {
-      Unknown(0),
-      /**
-       * All pixels are opaque.
-       */
-      Opaque(1),
-      /**
-       * All pixels have their alpha pre-multiplied in their color components.
-       */
-      Premul(2),
-      /**
-       * <p>All pixels have their color components stored without any regard to the alpha. e.g. this is the default configuration for PNG images.</p>
-       * <p>This alpha-type is ONLY supported for input images. Rendering cannot generate this on output.</p>
-       */
-      Unpremul(3);
-
-
-      private int value = 0;
-      
-      private SkAlphaType(int val) {
-         this.value = val;
-      }
-   }
-
-
-
-   //--------------------------------------------------------------------------
- 
-
-   /**
-    * Creates an instance of SkImageInfo with the specified dimensions, 8 bit
-    * colour channels, and an 8 bit alpha channel.  The colour space will be sRGB.
-    * 
-    * @param width
-    * @param height
-    */
-   public SkImageInfo(int width, int height)
-   {
-      this(width, height, SkColorType.Rgba8888, SkAlphaType.Premul, null);
-   }
-
-
-   public SkImageInfo(int width, int height, SkColorType colorType, SkAlphaType alphaType, SkColorSpace colorSpace)
+   private SkImageInfo(int width, int height, SkColorType colorType, SkAlphaType alphaType, SkColorSpace colorSpace, long nRef)
    {
       this.width = width;
       this.height = height;
       this.colorType = colorType;
       this.alphaType = alphaType;
-      this.colorSpace = (colorSpace != null) ? colorSpace
-                                             : SkColorSpace.createSrgb();
+      this.colorSpace = colorSpace;
+      this.nRef = nRef;
 
 /**/System.out.println("w="+this.width);
 /**/System.out.println("h="+this.height);
 /**/System.out.println("colorType="+this.colorType);
 /**/System.out.println("alphaType="+this.alphaType);
 /**/System.out.println("colorSpace="+this.colorSpace);
-      this.nRef = nSkImageInfoNew(width, height, colorType.value, alphaType.value, this.colorSpace.nativeRef());
+   }
+
+
+   //--------------------------------------------------------------------------
+ 
+
+   /**
+    * Creates an SkImageInfo instance that describes the colours, alpha and colour space of a surface.
+    * 
+    * @param width the image width
+    * @param height the image height
+    * @param colorType the colour type
+    * @param alphaType the type of alpha storage to use
+    * @param colorSpace the colour space. If this is null, sRGB will be used.
+    * @return an instance of SkImageInfo
+    */
+   public static SkImageInfo  make(int width, int height, SkColorType colorType, SkAlphaType alphaType, SkColorSpace colorSpace)
+   {
+      long  csp = (colorSpace != null) ? colorSpace.nativeRef() : 0;
+      
+      long  nRef = nSkImageInfoMake(width, height, colorType.ordinal(), alphaType.ordinal(), csp);
+      if (nRef == 0)
+         return null;
+
+      return new SkImageInfo(width, height, colorType, alphaType, colorSpace, nRef);
+   }
+
+
+   /**
+    * Creates an SkImageInfo from width and height, native SkColorType
+    * (ARGB or ABGR), specified SkAlphaType and SkColorSpace.
+    * 
+    * @param width the image width
+    * @param height the image height
+    * @param alphaType the alpha type
+    * @param colorSpace the colour space to use
+    * @return an instance of SkImageInfo
+    */
+   public static SkImageInfo  makeN32(int width, int height, SkAlphaType alphaType, SkColorSpace colorSpace)
+   {
+      long  csp = (colorSpace != null) ? colorSpace.nativeRef() : 0;
+
+      long  nRef = nSkImageInfoMakeN32(width, height, alphaType.ordinal(), csp);
+      if (nRef == 0)
+         return null;
+
+      SkColorType   ct = SkColorType.from( nSkImageInfoGetColorType(nRef) );
+
+      return new SkImageInfo(width, height, ct, alphaType, colorSpace, nRef);
+   }
+
+
+   /**
+    * Creates an SkImageInfo from width and height, native SkColorType
+    * (ARGB or ABGR), specified SkAlphaType, with SkColorSpace set to sRGB.
+    * 
+    * @param width the image width
+    * @param height the image height
+    * @param alphaType the alpha type
+    * @return an instance of SkImageInfo
+    */
+   public static SkImageInfo  makeS32(int width, int height, SkAlphaType alphaType)
+   {
+      long  nRef = nSkImageInfoMakeN32(width, height, alphaType.ordinal(), 0);
+      if (nRef == 0)
+         return null;
+//SkColorSpace  csp = SkColorSpace.createSrgb();
+
+      SkColorType   ct = SkColorType.from( nSkImageInfoGetColorType(nRef) );
+
+    return new SkImageInfo(width, height, ct, alphaType, null, nRef);
+   }
+
+
+   /**
+    * Creates an SkImageInfo from width and height, native SkColorType
+    * (ARGB or ABGR), SkAlphaType.kPremul, and specified SkColorSpace.
+    *  
+    * @param width the image width
+    * @param height the image height
+    * @param colorSpace the colour space to use
+    * @return an instance of SkImageInfo
+    */
+   public static SkImageInfo  makeN32Premul(int width, int height, SkColorSpace colorSpace)
+   {
+      long         csp = (colorSpace != null) ? colorSpace.nativeRef() : 0;
+      SkAlphaType  at = SkAlphaType.kPremul;
+
+      long  nRef = nSkImageInfoMakeN32(width, height, at.ordinal(), csp);
+      if (nRef == 0)
+         return null;
+
+      SkColorType   ct = SkColorType.from( nSkImageInfoGetColorType(nRef) );
+
+      return new SkImageInfo(width, height, ct, at, null, nRef);
+   }
+
+
+   /**
+    * Creates an SkImageInfo from width and height, native SkColorType
+    * (ARGB or ABGR), SkAlphaType.kPremul, with SkColorSpace set to sRGB.
+    *  
+    * @param width the image width
+    * @param height the image height
+    * @return an instance of SkImageInfo
+    */
+   public static SkImageInfo  makeN32Premul(int width, int height)
+   {
+      SkAlphaType  at = SkAlphaType.kPremul;
+
+      long  nRef = nSkImageInfoMakeN32(width, height, at.ordinal(), 0);
+      if (nRef == 0)
+         return null;
+
+      SkColorType   ct = SkColorType.from( nSkImageInfoGetColorType(nRef) );
+
+      return new SkImageInfo(width, height, ct, at, null, nRef);
+   }
+
+
+   /**
+    * Creates an SkImageInfo from width and height, SkColorType.kAlpha_8,
+    * SkAlphaType.kPremul, with SkColorSpace set to sRGB.
+    *  
+    * @param width the image width
+    * @param height the image height
+    * @return an instance of SkImageInfo
+    */
+   public static SkImageInfo  makeA8(int width, int height)
+   {
+      SkColorType   ct = SkColorType.kAlpha_8;
+      SkAlphaType   at = SkAlphaType.kPremul;
+
+      long  nRef = nSkImageInfoMake(width, height, ct.ordinal(), at.ordinal(), 0);
+      if (nRef == 0)
+         return null;
+
+      return new SkImageInfo(width, height, ct, at, null, nRef);
    }
 
 
@@ -214,30 +255,19 @@ public class SkImageInfo  implements AutoCloseable
     * Allocate a new imageinfo object. If colorspace is not null, it's owner-count will be
     * incremented automatically.
     */
-   native private static long  nSkImageInfoNew(int width, int height, int colorType, int alphaType, long colorSpace);
-   //SK_API sk_imageinfo_t* sk_imageinfo_new(int width, int height, sk_colortype_t ct, sk_alphatype_t at,
-   //                                        sk_colorspace_t* cs);
+   native private static long  nSkImageInfoMake(int width, int height, int colorType, int alphaType, long colorSpace);
+
+   native private static long  nSkImageInfoMakeN32(int width, int height, int alphaType, long colorSpace);
 
    /*
     * Free the imageinfo object. If it contains a reference to a colorspace, its owner-count will
     * be decremented automatically.
     */
    native private static void  nSkImageInfoDelete(long ref);
-   //void sk_imageinfo_delete(sk_imageinfo_t*);
 
    /*
-    * int32_t          sk_imageinfo_get_width(sk_imageinfo_t*);
-    * int32_t          sk_imageinfo_get_height(sk_imageinfo_t*);
-    * sk_colortype_t   sk_imageinfo_get_colortype(sk_imageinfo_t*);
-    * sk_alphatype_t   sk_imageinfo_get_alphatype(sk_imageinfo_t*);
+    * Get the SKColorType (as an ordinal)
     */
-   
-   /*
-    * Return the colorspace object reference contained in the imageinfo, or null if there is none.
-    * Note: this does not modify the owner-count on the colorspace object. If the caller needs to
-    * use the colorspace beyond the lifetime of the imageinfo, it should manually call
-    * sk_colorspace_ref() (and then call unref() when it is done).
-    */
-   //sk_colorspace_t* sk_imageinfo_get_colorspace(sk_imageinfo_t*);
+   native private static int  nSkImageInfoGetColorType(long ref);
 
 }

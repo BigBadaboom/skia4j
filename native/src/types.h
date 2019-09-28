@@ -8,20 +8,41 @@
 #ifndef sk_types_priv_DEFINED
 #define sk_types_priv_DEFINED
 
+class SkCanvas;
+class SkImage;
+class SkImageInfo;
 class SkMaskFilter;
 class SkPaint;
 class SkShader;
-class SkImage;
-class SkCanvas;
+class SkSurface;
+class SkSurfaceProps;
 
 
 static SkCanvas* AsCanvas(jlong ccanvas) {
+	if (ccanvas == 0)
+		return NULL;
    return reinterpret_cast<SkCanvas*>(ccanvas);
 }
 
-static jlong ToCanvas(SkCanvas* canvas) {
-    return reinterpret_cast<jlong>(canvas);
+static jlong ToCanvas(SkCanvas* ccanvas) {
+	if (ccanvas == NULL)
+		return 0;
+   return reinterpret_cast<jlong>(ccanvas);
 }
+
+
+static SkColorSpace* AsColorSpace(jlong cspace) {
+	if (cspace == 0)
+		return NULL;
+   return reinterpret_cast<SkColorSpace*>(cspace);
+}
+
+static jlong ToColorSpace(SkColorSpace* cspace) {
+	if (cspace == NULL)
+		return 0;
+   return reinterpret_cast<jlong>(cspace);
+}
+
 
 /*
 static SkData* AsData(const sk_data_t* cdata) {
@@ -34,12 +55,37 @@ static sk_data_t* ToData(SkData* data) {
 */
 
 static const SkImage* AsImage(jlong cimage) {
-    return reinterpret_cast<const SkImage*>(cimage);
+	if (cimage == 0)
+		return NULL;
+   return reinterpret_cast<const SkImage*>(cimage);
 }
 
 static jlong ToImage(SkImage* cimage) {
-    return reinterpret_cast<jlong>(cimage);
+	if (cimage == NULL)
+		return 0;
+   return reinterpret_cast<jlong>(cimage);
 }
+
+
+static inline SkImageInfo* AsImageInfo(jlong cinfo) {
+	if (cinfo == 0)
+		return NULL;
+   return reinterpret_cast<SkImageInfo*>(cinfo);
+}
+
+static jlong ToImageInfo(SkImageInfo* cinfo) {
+	if (cinfo == NULL)
+		return 0;
+   return reinterpret_cast<jlong>(cinfo);
+}
+
+
+static inline SkSurfaceProps* AsSurfaceProps(jlong cprops) {
+	if (cprops == 0)
+		return NULL;
+   return reinterpret_cast<SkSurfaceProps*>(cprops);
+}
+
 
 /*
 static inline SkMaskFilter* AsMaskFilter(sk_maskfilter_t* cfilter) {
@@ -60,11 +106,15 @@ static inline const SkPaint* AsPaint(const sk_paint_t* cpaint) {
 */
 
 static inline SkPaint* AsPaint(jlong cpaint) {
-    return reinterpret_cast<SkPaint*>(cpaint);
+	if (cpaint == 0)
+		return NULL;
+   return reinterpret_cast<SkPaint*>(cpaint);
 }
 
 static jlong ToPaint(SkPaint* cpaint) {
-    return reinterpret_cast<jlong>(cpaint);
+	if (cpaint == NULL)
+		return 0;
+   return reinterpret_cast<jlong>(cpaint);
 }
 
 /*
@@ -109,6 +159,19 @@ static sk_picture_t* ToPicture(SkPicture* pic) {
     return reinterpret_cast<sk_picture_t*>(pic);
 }
 */
+
+static inline SkSurface* AsSurface(jlong csurface) {
+	if (csurface == 0)
+		return NULL;
+   return reinterpret_cast<SkSurface*>(csurface);
+}
+
+static jlong ToSurface(SkSurface* csurface) {
+	if (csurface == NULL)
+		return 0;
+   return reinterpret_cast<jlong>(csurface);
+}
+
 
 
 static unsigned char  u8clamp(int val) {

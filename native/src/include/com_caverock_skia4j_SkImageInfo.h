@@ -9,11 +9,19 @@ extern "C" {
 #endif
 /*
  * Class:     com_caverock_skia4j_SkImageInfo
- * Method:    nSkImageInfoNew
+ * Method:    nSkImageInfoMake
  * Signature: (IIIIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkImageInfo_nSkImageInfoNew
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkImageInfo_nSkImageInfoMake
   (JNIEnv *, jclass, jint, jint, jint, jint, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkImageInfo
+ * Method:    nSkImageInfoMakeN32
+ * Signature: (IIIJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkImageInfo_nSkImageInfoMakeN32
+  (JNIEnv *, jclass, jint, jint, jint, jlong);
 
 /*
  * Class:     com_caverock_skia4j_SkImageInfo
@@ -21,6 +29,14 @@ JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkImageInfo_nSkImageInfoNew
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkImageInfo_nSkImageInfoDelete
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkImageInfo
+ * Method:    nSkImageInfoGetColorType
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_caverock_skia4j_SkImageInfo_nSkImageInfoGetColorType
   (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus

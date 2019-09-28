@@ -9,18 +9,18 @@ extern "C" {
 #endif
 /*
  * Class:     com_caverock_skia4j_SkSurface
- * Method:    nSkSurfaceNewRaster
+ * Method:    nSkSurfaceMakeRaster
  * Signature: (JJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkSurface_nSkSurfaceNewRaster
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkSurface_nSkSurfaceMakeRaster
   (JNIEnv *, jclass, jlong, jlong);
 
 /*
  * Class:     com_caverock_skia4j_SkSurface
- * Method:    nSkSurfaceNewRasterDirect
+ * Method:    nSkSurfaceMakeRasterDirect
  * Signature: (J[BIJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkSurface_nSkSurfaceNewRasterDirect
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkSurface_nSkSurfaceMakeRasterDirect
   (JNIEnv *, jclass, jlong, jbyteArray, jint, jlong);
 
 /*
@@ -41,10 +41,10 @@ JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkSurface_nSkSurfaceGetCanvas
 
 /*
  * Class:     com_caverock_skia4j_SkSurface
- * Method:    nSkSurfaceNewImageSnapshot
+ * Method:    nSkSurfaceMakeImageSnapshot
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkSurface_nSkSurfaceNewImageSnapshot
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkSurface_nSkSurfaceMakeImageSnapshot
   (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus

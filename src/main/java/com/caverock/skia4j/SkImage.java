@@ -1,8 +1,5 @@
 package com.caverock.skia4j;
 
-import com.caverock.skia4j.SkImageInfo.SkAlphaType;
-import com.caverock.skia4j.SkImageInfo.SkColorType;
-
 /**
  * An SkImage describes a two dimensional array of pixels to draw. The pixels may be decoded in a raster bitmap,
  * encoded in a Picture or compressed data stream, or located in GPU memory as a GPU texture.

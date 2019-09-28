@@ -1,7 +1,5 @@
 package com.caverock.skia4j;
 
-import com.caverock.skia4j.SkImageInfo.SkAlphaType;
-import com.caverock.skia4j.SkImageInfo.SkColorType;
 
 /**
  * SkData represents an immutable data buffer.
