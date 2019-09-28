@@ -9,11 +9,43 @@ extern "C" {
 #endif
 /*
  * Class:     com_caverock_skia4j_SkColorSpace
- * Method:    nColorSpaceNewSrgb
+ * Method:    nSkColorSpaceMakeSRGB
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkColorSpace_nColorSpaceNewSrgb
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkColorSpace_nSkColorSpaceMakeSRGB
   (JNIEnv *, jclass);
+
+/*
+ * Class:     com_caverock_skia4j_SkColorSpace
+ * Method:    nSkColorSpaceMakeSRGBLinear
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkColorSpace_nSkColorSpaceMakeSRGBLinear
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_caverock_skia4j_SkColorSpace
+ * Method:    nSkColorSpaceUnref
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkColorSpace_nSkColorSpaceUnref
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkColorSpace
+ * Method:    nSkColorSpaceIsSRGB
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_caverock_skia4j_SkColorSpace_nSkColorSpaceIsSRGB
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkColorSpace
+ * Method:    nSkColorSpaceGammaIsLinear
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_caverock_skia4j_SkColorSpace_nSkColorSpaceGammaIsLinear
+  (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus
 }

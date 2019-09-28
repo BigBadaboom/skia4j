@@ -1,22 +1,58 @@
 package com.caverock.skia4j;
 
-public class SkColorSpace
+public class SkColorSpace  implements AutoCloseable
 {
    private long  nRef = 0;
    
    
-   private SkColorSpace() {}
+   private SkColorSpace(long nRef)
+   {
+      this.nRef = nRef;
+   }
 
 
    /**
     * Creates a new colour space instance of type sRGB.
     */
-   public static SkColorSpace  createSrgb()
+   public static SkColorSpace  makeSRGB()
    {
-      SkColorSpace result = new SkColorSpace();
-      result.nRef = nColorSpaceNewSrgb();
+      long  nRef = nSkColorSpaceMakeSRGB();
+      if (nRef == 0)
+         return null;
+
+      return new SkColorSpace(nRef);
       // Note: the above native SkColorSpace object will be automatically cleaned when SkImageInfo.close() is called.
-      return result;
+   }
+
+
+   /**
+    * Creates a new colour space instance of type sRGB.
+    */
+   public static SkColorSpace  makeSRGBLinear()
+   {
+      long  nRef = nSkColorSpaceMakeSRGBLinear();
+      if (nRef == 0)
+         return null;
+
+      return new SkColorSpace(nRef);
+      // Note: the above native SkColorSpace object will be automatically cleaned when SkImageInfo.close() is called.
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
+   /**
+    * Tidy up the native resource associated with this class.
+    * Must be called, when this object is no longer needed, to avoid memory leaks.
+    * 
+    * You can call close() directly, or use try-with-resources.
+    */
+   @Override
+   public void close() throws Exception
+   {
+      nSkColorSpaceUnref(nativeRef());
+      nRef = 0;
    }
 
 
@@ -37,13 +73,37 @@ public class SkColorSpace
 
 
    //--------------------------------------------------------------------------
+
+
+   /**
+    * Returns whether this colour space is a (non-linear) sRGB one.
+    * @return true if it is
+    */
+   public boolean  isSRGB()
+   {
+      return nSkColorSpaceIsSRGB(nativeRef());
+   }
+
+
+   /**
+    * Returns whether this colour space has a linear transfer function.  For example, if it was created with {@link #makeSRGBLinear()}. 
+    * @return true if it is
+    */
+   public boolean  isLinearGamma()
+   {
+      return nSkColorSpaceGammaIsLinear(nativeRef());
+   }
+
+
+   //--------------------------------------------------------------------------
    // Native methods
    // include/c/sk_imageinfo.h
 
-   native private static long  nColorSpaceNewSrgb();
-   //SK_API sk_colorspace_t* sk_colorspace_new_srgb();
+   native private static long  nSkColorSpaceMakeSRGB();
+   native private static long  nSkColorSpaceMakeSRGBLinear();
 
-   //SK_API void sk_colorspace_ref(sk_colorspace_t*);
-   //SK_API void sk_colorspace_unref(sk_colorspace_t*);
+   native private static void  nSkColorSpaceUnref(long ref);
 
+   native private static boolean  nSkColorSpaceIsSRGB(long ref);
+   native private static boolean  nSkColorSpaceGammaIsLinear(long ref);
 }

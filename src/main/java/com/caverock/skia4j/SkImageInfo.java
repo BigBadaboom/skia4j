@@ -167,6 +167,9 @@ public class SkImageInfo  implements AutoCloseable
    }
 
 
+   //--------------------------------------------------------------------------
+
+
    /**
     * Tidy up the native resource associated with this class.
     * Must be called, when this object is no longer needed, to avoid memory leaks.
