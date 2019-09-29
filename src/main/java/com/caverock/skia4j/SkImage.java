@@ -14,17 +14,63 @@ public class SkImage implements AutoCloseable
    private long  nRef = 0;
 
    // Keep a record of the surface metadata
-   private SkImageInfo  info;
+   private int           width;
+   private int           height;
+   private SkColorType   colorType = SkColorType.kUnknown;
+   private SkAlphaType   alphaType = SkAlphaType.kUnknown;
+   private SkColorSpace  colorSpace = null;
 
 
    //--------------------------------------------------------------------------
 
 
-   protected SkImage(long ref, SkImageInfo info)
+   SkImage(long ref, SkImageInfo info)
    {
       this.nRef = ref;
-      this.info = info;
+      this.width = info.getWidth();
+      this.height = info.getHeight();
+      this.colorType = info.getColorType();
+      this.alphaType = info.getAlphaType();
+      this.colorSpace = info.getColorSpace();
    }
+
+
+   SkImage(long ref, int width, int height, SkColorType colorType, SkAlphaType alphaType, SkColorSpace colorSpace)
+   {
+      this.nRef = ref;
+      this.width = width;
+      this.height = height;
+      this.colorType = colorType;
+      this.alphaType = alphaType;
+      this.colorSpace = colorSpace;
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
+   public static SkImage  makeFromEncoded(SkData encodedData, SkIRect subset)
+   {
+      long  nRef = (subset != null) ? nSkMakeFromEncoded(encodedData.nativeRef(), subset.getLeft(), subset.getTop(), subset.getRight(), subset.getBottom())
+                                    : nSkMakeFromEncoded(encodedData.nativeRef());
+      if (nRef == 0)
+         return null;
+
+      // Populate the metadata fields
+      int  width = nSkImageGetWidth(nRef);
+      int  height = nSkImageGetHeight(nRef);
+      SkAlphaType  alphaType = SkAlphaType.from( nSkImageGetAlphaType(nRef) );
+
+      long csRef = nSkImageGetColorSpace(nRef);
+      SkColorSpace  colourSpace = (csRef != 0) ? new SkColorSpace(csRef) : null;
+      
+      // Their doesn't seem to be a way to get the ColorType.  So we'll just have to use kUnknown.
+      return new SkImage(nRef, width, height, SkColorType.kUnknown, alphaType, colourSpace);
+
+   }
+
+
+   //--------------------------------------------------------------------------
 
 
    /**
@@ -61,13 +107,29 @@ public class SkImage implements AutoCloseable
 
    public int  getWidth()
    {
-      return info.getWidth();
+      return this.width;
    }
 
    public int  getHeight()
    {
-      return info.getHeight();
+      return this.height;
    }
+
+   public SkAlphaType  getAlphaType()
+   {
+      return this.alphaType;
+   }
+
+   public SkColorType  getColorType()
+   {
+      return this.colorType;
+   }
+
+   public SkColorSpace  getColorSpace()
+   {
+      return this.colorSpace;
+   }
+
 
    public int  getUniqueID()
    {
@@ -76,26 +138,6 @@ public class SkImage implements AutoCloseable
       return nSkImageGetUniqueId(nativeRef());
    }
 
-   public SkAlphaType  getAlphaType()
-   {
-      return info.getAlphaType();
-   }
-
-   public SkColorType  getColorType()
-   {
-      return info.getColorType();
-   }
-
-   public SkColorSpace  getColorSpace()
-   {
-      return info.getColorSpace();
-   }
-
-
-   public SkImageInfo  getImageInfo()
-   {
-      return this.info;
-   }
 
 
    //--------------------------------------------------------------------------
@@ -105,20 +147,34 @@ public class SkImage implements AutoCloseable
     * Encodes SkImage pixels, returning result as SkData.
     *
     * Returns null if encoding fails, or if {@code encodedImageFormat} is not supported.
+    * 
+    * This method is equivalent to {@code encodeToData(encodedImageFormat, 100)}
     *
-    * {@code quality} is a platform and format specific metric trading off size and encoding error. When used, quality equaling 100 encodes with the least error. quality may be ignored by the encoder.
-    * 
-    * Note: at this time the only format supported in SkEncodedImageFormat.kPNG. The {@code quality} parameter is ignored.
-    * 
     * @param encodedImageFormat the format into which the image should be encoded
-    * @param quality quality setting (depends on the chosen image format)
     * @return an SkData object representing the encoded data
+    */
+   public SkData  encodeToData(SkEncodedImageFormat encodedImageFormat)
+   {
+      return encodeToData(encodedImageFormat, 100);
+   }
+
+
+   /**
+    * Encodes SkImage pixels, returning result as SkData.
+    *
+    * Returns null if encoding fails, or if {@code encodedImageFormat} is not supported.
+    *
+    * {@code quality} is a platform and format specific metric trading off size and encoding error.
+    * When used, quality equaling 100 encodes with the least error. Some encoders do not use the quality
+    * parameter. In those cases, the value will be ignored.
+    * 
+    * @param encodedImageFormat the format into which the image should be encoded.
+    * @param quality the quality level to use for enoding. This is in the range 0-100.
+    * @return an SkData object representing the encoded data.
     */
    public SkData  encodeToData(SkEncodedImageFormat encodedImageFormat, int quality)
    {
-      if (encodedImageFormat != SkEncodedImageFormat.kPNG)
-         return null;
-      long dataRef = nSkImageEncode(nativeRef());  // C API only supports PNG for now.
+      long dataRef = nSkImageEncode(nativeRef(), encodedImageFormat.ordinal(), quality);
       return (dataRef != 0) ? new SkData(dataRef)
                             : null;
    }
@@ -131,64 +187,22 @@ public class SkImage implements AutoCloseable
    // Native methods
    // include/c/sk_paint.h
 
-   /**
-    *  Return a new image that has made a copy of the provided pixels, or NULL on failure.
-    *  Balance with a call to sk_image_unref().
-    */
-   //SK_API sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t*, const void* pixels, size_t rowBytes);
-   //native private static long  nSkImageNewRasterCopy(long imageInfo, byte[] pixels, int rowBytes);
 
-   /**
-    *  If the specified data can be interpreted as a compressed image (e.g. PNG or JPEG) then this
-    *  returns an image. If the encoded data is not supported, returns NULL.
-    *
-    *  On success, the encoded data may be processed immediately, or it may be ref()'d for later
-    *  use.
-    */
-   //SK_API sk_image_t* sk_image_new_from_encoded(const sk_data_t* encoded, const sk_irect_t* subset);
+   native private static long  nSkImageEncode(long image, int format, int quality);
 
-   /**
-    *  Encode the image's pixels and return the result as a new PNG in a
-    *  sk_data_t, which the caller must manage: call sk_data_unref() when
-    *  they are done.
-    *
-    *  If the image type cannot be encoded, this will return NULL.
-    */
-   //SK_API sk_data_t* sk_image_encode(const sk_image_t*);
-   native private static long  nSkImageEncode(long image);
+   native private static long  nSkMakeFromEncoded(long dataRef);
+   native private static long  nSkMakeFromEncoded(long dataRef, int left, int top, int right, int bottom);
 
-   /**
-    *  Increment the reference count on the given sk_image_t. Must be
-    *  balanced by a call to sk_image_unref().
-   */
-   //SK_API void sk_image_ref(const sk_image_t*);
-   native private static void  nSkImageRef(long image);
+   native private static void  nSkImageRef(long ref);
+   native private static void  nSkImageUnref(long ref);
 
-   /**
-    *  Decrement the reference count. If the reference count is 1 before
-    *  the decrement, then release both the memory holding the sk_image_t
-    *  and the memory it is managing.  New sk_image_t are created with a
-       reference count of 1.
-   */
-   //SK_API void sk_image_unref(const sk_image_t*);
-   native private static void  nSkImageUnref(long image);
+   native private static int  nSkImageGetWidth(long ref);
+   native private static int  nSkImageGetHeight(long ref);
 
-   /**
-    *  Return the width of the sk_image_t/
-    */
-   //SK_API int sk_image_get_width(const sk_image_t*);
-   native private static int  nSkImageGetWidth(long image);
+   native private static int   nSkImageGetAlphaType(long ref);
+   native private static long  nSkImageGetColorSpace(long ref);
 
-   /**
-    *  Return the height of the sk_image_t/
-    */
-   //SK_API int sk_image_get_height(const sk_image_t*);
-   native private static int  nSkImageGetHeight(long image);
+   native private static int  nSkImageGetUniqueId(long ref);
 
-   /**
-    *  Returns a non-zero value unique among all images.
-    */
-   //SK_API uint32_t sk_image_get_unique_id(const sk_image_t*);
-   native private static int  nSkImageGetUniqueId(long image);
 
 }

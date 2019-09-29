@@ -5,7 +5,7 @@ public class SkColorSpace  implements AutoCloseable
    private long  nRef = 0;
    
    
-   private SkColorSpace(long nRef)
+   SkColorSpace(long nRef)
    {
       this.nRef = nRef;
    }

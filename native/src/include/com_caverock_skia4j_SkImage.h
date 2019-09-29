@@ -10,10 +10,26 @@ extern "C" {
 /*
  * Class:     com_caverock_skia4j_SkImage
  * Method:    nSkImageEncode
- * Signature: (J)J
+ * Signature: (JII)J
  */
 JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkImage_nSkImageEncode
+  (JNIEnv *, jclass, jlong, jint, jint);
+
+/*
+ * Class:     com_caverock_skia4j_SkImage
+ * Method:    nSkMakeFromEncoded
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkImage_nSkMakeFromEncoded__J
   (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkImage
+ * Method:    nSkMakeFromEncoded
+ * Signature: (JIIII)J
+ */
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkImage_nSkMakeFromEncoded__JIIII
+  (JNIEnv *, jclass, jlong, jint, jint, jint, jint);
 
 /*
  * Class:     com_caverock_skia4j_SkImage
@@ -45,6 +61,22 @@ JNIEXPORT jint JNICALL Java_com_caverock_skia4j_SkImage_nSkImageGetWidth
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_com_caverock_skia4j_SkImage_nSkImageGetHeight
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkImage
+ * Method:    nSkImageGetAlphaType
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_caverock_skia4j_SkImage_nSkImageGetAlphaType
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkImage
+ * Method:    nSkImageGetColorSpace
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkImage_nSkImageGetColorSpace
   (JNIEnv *, jclass, jlong);
 
 /*
