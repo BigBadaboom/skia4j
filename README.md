@@ -2,7 +2,7 @@
 
 An attempt to create JNI bindings for Skia.
 
-(Just started. Nothing useful here yet)
+(Just started. Not very useful yet.)
 
 
 Disclaimer: this project has no connection with Google - other than the fact that it uses Skia.
