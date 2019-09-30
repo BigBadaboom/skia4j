@@ -1,5 +1,9 @@
 package com.caverock.skia4j;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * SkData represents an immutable data buffer.
@@ -16,11 +20,117 @@ public class SkData implements AutoCloseable
    //--------------------------------------------------------------------------
 
 
-   protected SkData(long ref)
+   SkData(long ref)
    {
       this.nRef = ref;
       this.size = nSkDataGetSize(ref);
    }
+
+
+   SkData(long ref, int size)
+   {
+      this.nRef = ref;
+      this.size = size;
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
+   /**
+    * Create a new SkData by copying the specified data.
+    * 
+    * @param data an array of bytes
+    * @return new SkData object
+    */
+   public static SkData  makeWithCopy(byte[] data)
+   {
+      long ref = nSkMakeWithCopy(data, 0, data.length);
+      if (ref == 0)
+         return null;
+
+      return new SkData(ref, data.length);
+   }
+
+
+   /**
+    * Create a new SkData by copying the specified data.
+    * 
+    * @param data an array of bytes
+    * @param offset the offset into the buffer to start the copy from
+    * @param length the number of bytes to copy
+    * @return new SkData object
+    */
+   public static SkData  makeWithCopy(byte[] data, int offset, int length)
+   {
+      if (data == null || data.length < (offset + length))
+         return null;
+
+      long  ref = nSkMakeWithCopy(data, offset, length);
+      if (ref == 0)
+         return null;
+      return new SkData(ref, length);
+   }
+
+
+   /**
+    * Create a new SkData from the contents of the specified file.
+    * 
+    * @param filename the name of the file to read
+    * @return new SkData object, or null if the file could not be found or read.
+    */
+   public static SkData  makeFromFileName(String filename)
+   {
+      long  ref = nSkMakeFromFileName(filename);
+      if (ref == 0)
+         return null;
+      return new SkData(ref);
+   }
+
+
+   /**
+    * Create a new SkData from the contents of the specified file.
+    * 
+    * @param file File object to read
+    * @return new SkData object, or null if the file could not be found or read.
+    */
+   public static SkData  makeFromFile(File file)
+   {
+      if (file == null || !file.exists() || !file.isFile())
+         return null;
+
+      long  ref = nSkMakeFromFileName(file.getAbsolutePath());
+      if (ref == 0)
+         return null;
+      return new SkData(ref);
+   }
+
+
+   /**
+    * Create a new SkData from the contents of the specified input stream.
+    * 
+    * Caller is responsible for closing the stream if necessary.
+    * 
+    * @param input the input stream
+    * @param size the number of bytes to read from the stream
+    * @return
+    * @throws EOFException if this input stream reaches the end before reading all the bytes.
+    * @throws IOException the stream has been closed and the contained input stream does not support reading after close, or another I/O error occurs.
+    */
+   public static SkData  makeFromStream(InputStream input, int size) throws IOException
+   {
+      if (size < 0)
+         throw new IllegalArgumentException("size must be positive");
+
+      byte[]  buf = new byte[size];
+      DataInputStream  dis = new DataInputStream(input);
+      dis.readFully(buf);
+      
+      return makeWithCopy(buf);
+   }
+
+   
+   //--------------------------------------------------------------------------
 
 
    /**
@@ -61,7 +171,7 @@ public class SkData implements AutoCloseable
     */
    public int  size()
    {
-      return this.size();
+      return this.size;
    }
 
 
@@ -82,71 +192,15 @@ public class SkData implements AutoCloseable
 
    //--------------------------------------------------------------------------
    // Native methods
-   // include/c/sk_paint.h
 
-   /**
-   Returns a new empty sk_data_t.  This call must be balanced with a call to
-   sk_data_unref().
-    */
-   //SK_API sk_data_t* sk_data_new_empty(void);
+   native private static long  nSkMakeWithCopy(byte[] data, int offset, int length);
+   native private static long  nSkMakeFromFileName(String filename);
 
-   /**
-   Returns a new sk_data_t by copying the specified source data.
-   This call must be balanced with a call to sk_data_unref().
-    */
-   //SK_API sk_data_t* sk_data_new_with_copy(const void* src, size_t length);
-
-   /**
-   Pass ownership of the given memory to a new sk_data_t, which will
-   call free() when the refernce count of the data goes to zero.  For
-   example:
-       size_t length = 1024;
-       void* buffer = malloc(length);
-       memset(buffer, 'X', length);
-       sk_data_t* data = sk_data_new_from_malloc(buffer, length);
-   This call must be balanced with a call to sk_data_unref().
-    */
-   //SK_API sk_data_t* sk_data_new_from_malloc(const void* memory, size_t length);
-
-   /**
-   Returns a new sk_data_t using a subset of the data in the
-   specified source sk_data_t.  This call must be balanced with a
-   call to sk_data_unref().
-    */
-   //SK_API sk_data_t* sk_data_new_subset(const sk_data_t* src, size_t offset, size_t length);
-
-   /**
-   Increment the reference count on the given sk_data_t. Must be
-   balanced by a call to sk_data_unref().
-    */
-   //SK_API void sk_data_ref(const sk_data_t*);
    native private static void  nSkDataRef(long data);
-
-   /**
-   Decrement the reference count. If the reference count is 1 before
-   the decrement, then release both the memory holding the sk_data_t
-   and the memory it is managing.  New sk_data_t are created with a
-   reference count of 1.
-    */
-   //SK_API void sk_data_unref(const sk_data_t*);
    native private static void  nSkDataUnref(long data);
 
-   /**
-   Returns the number of bytes stored.
-    */
-   //SK_API size_t sk_data_get_size(const sk_data_t*);
    native private static int  nSkDataGetSize(long data);
 
-   /**
-   Returns the pointer to the data.
-    */
-   //SK_API const void* sk_data_get_data(const sk_data_t*);
-   //native private static long  nSkDataGetData(long data);
-
-   
-   /*
-    * Convert the data from an SkData object into a byte array
-    */
    native private static byte[]  nSkDataToByteArray(long data);
 
 }

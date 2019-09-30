@@ -1,5 +1,7 @@
 package com.caverock.skia4j;
 
+import java.io.File;
+
 /**
  * An SkImage describes a two dimensional array of pixels to draw. The pixels may be decoded in a raster bitmap,
  * encoded in a Picture or compressed data stream, or located in GPU memory as a GPU texture.
@@ -49,8 +51,29 @@ public class SkImage implements AutoCloseable
    //--------------------------------------------------------------------------
 
 
+   /**
+    * Create an SkImage from the (encoded) contents of an SkData object.
+    * 
+    * @param encodedData a data object containing an encoded image such as a PNG or JPEG
+    * @return an SkImage containing a decoded bitmap
+    */
+   public static SkImage  makeFromEncoded(SkData encodedData)
+   {
+      return makeFromEncoded(encodedData, null);
+   }
+
+
+   /**
+    * Create an SkImage from the (encoded) contents of an SkData object.
+    * 
+    * @param encodedData a data object containing an encoded image such as a PNG or JPEG
+    * @param subset rectangle describing the portion of the image to create the image from. Leave null for entire image.
+    * @return an SkImage containing a decoded bitmap
+    */
    public static SkImage  makeFromEncoded(SkData encodedData, SkIRect subset)
    {
+      if (encodedData == null)
+         return null;
       long  nRef = (subset != null) ? nSkMakeFromEncoded(encodedData.nativeRef(), subset.getLeft(), subset.getTop(), subset.getRight(), subset.getBottom())
                                     : nSkMakeFromEncoded(encodedData.nativeRef());
       if (nRef == 0)
@@ -68,6 +91,29 @@ public class SkImage implements AutoCloseable
       return new SkImage(nRef, width, height, SkColorType.kUnknown, alphaType, colourSpace);
 
    }
+
+
+   /**
+    * <p>Convenience method to read an encoded image file, such as a PNG or JPEG,
+    * and return an SkImage object.</p>
+    * 
+    * <p>Internally, this method creates an {@code SkData} from the file, creates
+    * an {@code SkImage} from it, and then closes the data object.
+    * 
+    * @param file the file to load 
+    * @return an SkImage containing a decoded bitmap
+    */
+   public static SkImage  makeFromEncoded(File file)
+   {
+      try (SkData  data = SkData.makeFromFile(file)) {
+         SkImage image = SkImage.makeFromEncoded(data, null);
+         return image;
+      } catch (Exception e) {
+         e.printStackTrace();
+         return null;
+      }
+   }
+
 
 
    //--------------------------------------------------------------------------

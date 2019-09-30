@@ -9,6 +9,22 @@ extern "C" {
 #endif
 /*
  * Class:     com_caverock_skia4j_SkData
+ * Method:    nSkMakeWithCopy
+ * Signature: ([BII)J
+ */
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkData_nSkMakeWithCopy
+  (JNIEnv *, jclass, jbyteArray, jint, jint);
+
+/*
+ * Class:     com_caverock_skia4j_SkData
+ * Method:    nSkMakeFromFileName
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkData_nSkMakeFromFileName
+  (JNIEnv *, jclass, jstring);
+
+/*
+ * Class:     com_caverock_skia4j_SkData
  * Method:    nSkDataRef
  * Signature: (J)V
  */

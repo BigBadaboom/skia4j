@@ -8,6 +8,43 @@
 
 /*
  * Class:     com_caverock_skia4j_SkData
+ * Method:    nSkMakeWithCopy
+ * Signature: ([BII)J
+ */
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkData_nSkMakeWithCopy
+  (JNIEnv *env, jclass cls, jbyteArray data, jint offset, jint length)
+{
+	// Get a pointer to the byte data and pin the buffer in the VM so it is not GC'd
+	jbyte*  bptr = env->GetByteArrayElements(data, NULL);
+	if (bptr == NULL)
+	  return 0;  // return "null"
+	// Make an SKData using a copy of the byte data
+   long  result = ToData( SkData::MakeWithCopy(bptr + offset, length).release() );
+   // Release the pin on our byte data
+   env->ReleaseByteArrayElements(data, bptr, JNI_ABORT);
+   return result;
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkData
+ * Method:    nSkMakeFromFileName
+ * Signature: (Ljava/lang/String;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_caverock_skia4j_SkData_nSkMakeFromFileName
+(JNIEnv *env, jclass cls, jstring filename)
+{
+	const char *str = env->GetStringUTFChars(filename, 0);
+
+   jlong  result = ToData( SkData::MakeFromFileName(str).release() );
+
+	env->ReleaseStringUTFChars(filename, str);
+	return result;
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkData
  * Method:    nSkDataRef
  * Signature: (J)V
  */
