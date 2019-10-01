@@ -151,6 +151,46 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawCircle
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawOval
   (JNIEnv *, jclass, jlong, jfloat, jfloat, jfloat, jfloat, jlong);
 
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawArc
+ * Signature: (JFFFFFFZJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawArc
+  (JNIEnv *, jclass, jlong, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jboolean, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawLine
+ * Signature: (JFFFFJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawLine
+  (JNIEnv *, jclass, jlong, jfloat, jfloat, jfloat, jfloat, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawPoint
+ * Signature: (JFFJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPoint
+  (JNIEnv *, jclass, jlong, jfloat, jfloat, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawPoints
+ * Signature: (JII[FJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPoints
+  (JNIEnv *, jclass, jlong, jint, jint, jfloatArray, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawImage
+ * Signature: (JJFFJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawImage
+  (JNIEnv *, jclass, jlong, jlong, jfloat, jfloat, jlong);
+
 #ifdef __cplusplus
 }
 #endif

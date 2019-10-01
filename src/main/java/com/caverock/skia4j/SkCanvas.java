@@ -6,6 +6,23 @@ public class SkCanvas
    private long  nRef = 0;
 
 
+   public enum PointMode
+   {
+      /**
+       * Draws each point separately. Point size and shape is determined by paint strokeWidth and strokeCap settings.
+       */
+      kPoints,
+      /**
+       * Draws each pair of points as a line segment. For N points, N/2 lines will be drawn.
+       */
+      kLines,
+      /**
+       * Draws the array of points as a polyline, or open polygonal chain. For N points, N-1 lines will be drawn. 
+       */
+      kPolygon
+   }
+
+
    //--------------------------------------------------------------------------
 
 
@@ -279,7 +296,7 @@ public class SkCanvas
    /**
    /* Draws an oval inscribed in the specified rectangle using the specified paint.
     * 
-    * @param rect
+    * @param rect the bounds of the rectangle to be drawn
     * @param paint
     */
    public void drawOval(SkRect rect, SkPaint paint)
@@ -288,6 +305,124 @@ public class SkCanvas
    }
 
 
+
+   /**
+    * Draw the specified image, with its top/left corner at (x,y), using the specified paint, transformed by the current matrix.
+    * 
+    * @param image the image to be drawn to the canvas.
+    * @param left the X position
+    * @param top the Y position
+    * @param paint  The paint used to draw the image. May be null.
+    */
+   public void drawImage(SkImage image, float left, float top, SkPaint paint)
+   {
+      long  paintRef = (paint != null) ? paint.nativeRef() : 0;
+      nSkCanvasDrawImage(nRef, image.nativeRef(), left, top, paintRef);
+   }
+
+
+
+   /**
+    * <p>Draw the specified arc, which will be scaled to fit inside the specified oval.</p>
+    *
+    * Sweep angles are not treated as modulo 360 and thus can exceed a full sweep of the oval. Note that this
+    * differs slightly from SkPath::arcTo, which treats the sweep angle mod 360. If the oval is empty or the
+    * sweep angle is zero nothing is drawn. If useCenter is true the oval center is inserted into the implied
+    * path before the arc and the path is closed back to the, center forming a wedge. Otherwise, the implied
+    * path contains just the arc and is not closed.
+    *
+    * @param left The left X coordinate of the bounds of the oval
+    * @param top  The top Y coordinate of the bounds of the oval
+    * @param right  The right X coordinate of the bounds of the oval
+    * @param bottom The bottom Y coordinate of the bounds of the oval
+    * @param startAngle Starting angle (in degrees) where the arc begins
+    * @param sweepAngle Sweep angle (in degrees) measured clockwise.
+    * @param useCenter true means include the center of the oval.
+    * @param paint The paint used to draw the arc
+    */
+   public void drawArc(float left, float top, float right, float bottom, float startAngle, float sweepAngle, boolean useCenter, SkPaint paint)
+   {
+      nSkCanvasDrawArc(nRef, left, top, right, bottom, startAngle, sweepAngle, useCenter, paint.nativeRef());
+   }
+
+
+
+   /**
+    * Draw a line segment with the specified start and stop x,y coordinates, using the specified paint.
+    * The paint stroke width describes the line thickness. The cap draws the end rounded or square.
+    * The paint style is ignored, as if were set to {@code Style.Stroke}.
+    * 
+    * @param x0 The X coordinate of the start point of the line
+    * @param y0 The Y coordinate of the start point of the line
+    * @param x1 The X coordinate of the end point of the line
+    * @param y1 The Y coordinate of the end point of the line
+    * @param paint The paint used to draw the line
+    */
+   public void drawLine(float x0, float y0, float x1, float y1, SkPaint paint)
+   {
+      nSkCanvasDrawLine(nRef, x0, y0, x1, y1, paint.nativeRef());
+   }
+
+
+
+   /**
+    * <p>Draw a single point. The point is centered at the coordinate specified by x and y.
+    * Its diameter is specified by the paint's stroke width (as transformed by the canvas' CTM), with
+    * special treatment for a stroke width of 0, which always draws exactly 1 pixel (or at most 4 if
+    * antialiasing is enabled).</p>
+    * <p>The shape of the point is controlled by the paint's Cap type. The shape is a square, unless
+    * the cap type is Round, in which case the shape is a circle. The paint style is ignored, as if
+    * were set to {@code Style.Stroke}.</p>
+    * 
+    * @param x
+    * @param y
+    * @param paint
+    */
+   public void drawPoint(float x, float y, SkPaint paint)
+   {
+      nSkCanvasDrawPoint(nRef, x, y, paint.nativeRef());
+   }
+
+
+   /**
+    * Convenience function for {@link #drawPoints(PointMode, float[], SkPaint)PointMode,int,float[],SkPaint)}
+    * which assumes you want to draw the entire point array.
+    * 
+    * @param mode
+    * @param pts
+    * @param paint
+    */
+   public void drawPoints(PointMode mode, float[] pts, SkPaint paint)
+   {
+      nSkCanvasDrawPoints(nRef, mode.ordinal(), Math.floorDiv(pts.length, 2), pts, paint.nativeRef());
+   }
+
+
+   /**
+    * <p>Draw a series of points. Each point is centered at the coordinate specified by pts[], and its
+    * diameter is specified by the paint's stroke width (as transformed by the canvas' CTM), with
+    * special treatment for a stroke width of 0, which always draws exactly 1 pixel (or at most 4 if
+    * antialiasing is enabled).</p>
+    * <p>The shape of the point is controlled by the paint's Cap type. The shape is a square, unless
+    * the cap type is Round, in which case the shape is a circle. The paint style is ignored, as if
+    * were set to {@code Style.Stroke}.</p>
+    * 
+    * @param mode
+    * @param count
+    * @param pts
+    * @param paint
+    */
+   public void drawPoints(PointMode mode, int count, float[] pts, SkPaint paint)
+   {
+      int ptCount = Math.floorDiv(pts.length, 2);
+      if (count > ptCount)
+         count = ptCount;
+      nSkCanvasDrawPoints(nRef, mode.ordinal(), count, pts, paint.nativeRef());
+   }
+
+
+
+   
 
    //--------------------------------------------------------------------------
    // Native methods
@@ -308,132 +443,23 @@ public class SkCanvas
    native private static void  nSkCanvasRestoreToCount(long canvas, int count);
 
 
-   /*
-    * Preconcat the current coordinate transformation matrix with the
-    * specified translation.
-    */
-   //SK_API void sk_canvas_translate(sk_canvas_t*, float dx, float dy);
    native private static void  nSkCanvasTranslate(long canvas, float dx, float dy);
-
-   /*
-    * Preconcat the current coordinate transformation matrix with the
-    * specified scale.
-    */
-   //SK_API void sk_canvas_scale(sk_canvas_t*, float sx, float sy);
    native private static void  nSkCanvasScale(long canvas, float sx, float sy);
-
-   /*
-    * Preconcat the current coordinate transformation matrix with the
-    * specified rotation in degrees.
-    */
-   //SK_API void sk_canvas_rotate_degrees(sk_canvas_t*, float degrees);
    native private static void  nSkCanvasRotate(long canvas, float degrees);
-
    native private static void  nSkCanvasRotate(long canvas, float degrees, float px, float py);
-
-   /*
-    * Preconcat the current coordinate transformation matrix with the
-    * specified rotation in radians.
-    */
-   //SK_API void sk_canvas_rotate_radians(sk_canvas_t*, float radians);
-
-   /*
-    * Preconcat the current coordinate transformation matrix with the
-    * specified skew.
-    */
-   //SK_API void sk_canvas_skew(sk_canvas_t*, float sx, float sy);
    native private static void  nSkCanvasSkew(long canvas, float sx, float sy);
-
-   /*
-    * Preconcat the current coordinate transformation matrix with the
-    * specified matrix.
-    */
-   //SK_API void sk_canvas_concat(sk_canvas_t*, const sk_matrix_t*);
    native private static void  nSkCanvasConcat(long canvas, float m0, float m1, float m2, float m3, float m4, float m5, float m6, float m7, float m8);
 
 
-   /*
-    * Modify the current clip with the specified rectangle.  The new
-    * current clip will be the intersection of the old clip and the
-    * rectange.
-    */
-   //SK_API void sk_canvas_clip_rect(sk_canvas_t*, const sk_rect_t*);
-
-   /*
-    * Modify the current clip with the specified path.  The new
-    * current clip will be the intersection of the old clip and the
-    * path.
-    */
-   //SK_API void sk_canvas_clip_path(sk_canvas_t*, const sk_path_t*);
-
-
-   /*
-    * Fill the entire canvas (restricted to the current clip) with the
-    * specified paint.
-    */
-   //SK_API void sk_canvas_draw_paint(sk_canvas_t*, const sk_paint_t*);
    native private static void  nSkCanvasDrawPaint(long canvas, long paint);
+   native private static void  nSkCanvasDrawRect(long canvas, float left, float top, float right, float bottom, long paint);
+   native private static void  nSkCanvasDrawCircle(long canvas, float cx, float cy, float radius, long paint);
+   native private static void  nSkCanvasDrawOval(long canvas, float left, float top, float right, float bottom, long paint);
+   native private static void  nSkCanvasDrawArc(long canvas, float left, float top, float right, float bottom, float startAngle, float sweepAngle, boolean useCenter, long paint);
+   native private static void  nSkCanvasDrawLine(long canvas, float x0, float y0, float x1, float y1, long paint);
+   native private static void  nSkCanvasDrawPoint(long canvas, float x, float y, long paint);
+   native private static void  nSkCanvasDrawPoints(long canvas, int mode, int count, float[] pts, long paint);
 
-   /*
-    * Draw the specified rectangle using the specified paint. The
-    * rectangle will be filled or stroked based on the style in the
-    * paint.
-    */
-   //SK_API void sk_canvas_draw_rect(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
-   native private static void nSkCanvasDrawRect(long canvas, float left, float top, float right, float bottom, long paint);
-
-   /*
-    * Draw the circle centered at (cx, cy) with radius rad using the specified paint.
-    * The circle will be filled or framed based on the style in the paint
-    */
-   //SK_API void sk_canvas_draw_circle(sk_canvas_t*, float cx, float cy, float rad, const sk_paint_t*);
-   native private static void nSkCanvasDrawCircle(long canvas, float cx, float cy, float radius, long paint);
-
-   /*
-    * Draw the specified oval using the specified paint. The oval will be
-    * filled or framed based on the style in the paint
-    */
-   //SK_API void sk_canvas_draw_oval(sk_canvas_t*, const sk_rect_t*, const sk_paint_t*);
-   native private static void nSkCanvasDrawOval(long canvas, float left, float top, float right, float bottom, long paint);
-
-   /*
-    * Draw the specified path using the specified paint. The path will be
-    * filled or framed based on the style in the paint
-    */
-   //SK_API void sk_canvas_draw_path(sk_canvas_t*, const sk_path_t*, const sk_paint_t*);
-
-   /*
-    * Draw the specified image, with its top/left corner at (x,y), using
-    * the specified paint, transformed by the current matrix.
-    * @param sk_paint_t* (may be NULL) the paint used to draw the image.
-    */
-   //SK_API void sk_canvas_draw_image(sk_canvas_t*, const sk_image_t*,
-   //                                 float x, float y, const sk_paint_t*);
-
-   /*
-    * Draw the specified image, scaling and translating so that it fills
-    * the specified dst rect. If the src rect is non-null, only that
-    * subset of the image is transformed and drawn.
-    * @param sk_paint_t* (may be NULL) The paint used to draw the image.
-    */
-   //SK_API void sk_canvas_draw_image_rect(sk_canvas_t*, const sk_image_t*,
-   //                                      const sk_rect_t* src,
-   //                                      const sk_rect_t* dst, const sk_paint_t*);
-
-   /*
-    * Draw the picture into this canvas (replay the pciture's drawing commands).
-    * @param sk_matrix_t* If non-null, apply that matrix to the CTM when
-    *                     drawing this picture. This is logically
-    *                     equivalent to: save, concat, draw_picture,
-    *                     restore.
-    * @param sk_paint_t* If non-null, draw the picture into a temporary
-    *                    buffer, and then apply the paint's alpha,
-    *                    colorfilter, imagefilter, and xfermode to that
-    *                    buffer as it is drawn to the canvas.  This is
-    *                    logically equivalent to save_layer(paint),
-    *                    draw_picture, restore.
-    */
-   //SK_API void sk_canvas_draw_picture(sk_canvas_t*, const sk_picture_t*,
-   //                                   const sk_matrix_t*, const sk_paint_t*);
+   native private static void  nSkCanvasDrawImage(long canvas, long image, float left, float top, long paint);
 
 }

@@ -193,8 +193,7 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasConcat
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPaint
   (JNIEnv *env, jclass cls, jlong nativeObj, jlong nativePaintObj)
 {
-   SkPaint*  paint = (nativePaintObj != 0) ? AsPaint(nativePaintObj)
-                                           : NULL;
+   SkPaint*  paint = AsPaint(nativePaintObj);
    AsCanvas(nativeObj)->drawPaint(*paint);
 }
 
@@ -207,9 +206,8 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPaint
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawRect
   (JNIEnv *env, jclass cls, jlong nativeObj, jfloat left, jfloat top, jfloat right, jfloat bottom, jlong nativePaintObj)
 {
-   SkPaint*  paint = (nativePaintObj != 0) ? AsPaint(nativePaintObj)
-                                            : NULL;
-   SkRect  rect{ left, top, right, bottom };
+   SkPaint*  paint = AsPaint(nativePaintObj);
+   SkRect    rect{ left, top, right, bottom };
    AsCanvas(nativeObj)->drawRect(rect, *paint);
 }
 
@@ -222,8 +220,7 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawRect
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawCircle
   (JNIEnv *env, jclass cls, jlong nativeObj, jfloat cx, jfloat cy, jfloat radius, jlong nativePaintObj)
 {
-   SkPaint*  paint = (nativePaintObj != 0) ? AsPaint(nativePaintObj)
-                                           : NULL;
+   SkPaint*  paint = AsPaint(nativePaintObj);
    AsCanvas(nativeObj)->drawCircle(cx, cy, radius, *paint);
 }
 
@@ -236,10 +233,98 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawCircle
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawOval
 (JNIEnv *env, jclass cls, jlong nativeObj, jfloat left, jfloat top, jfloat right, jfloat bottom, jlong nativePaintObj)
 {
-   SkPaint*  paint = (nativePaintObj != 0) ? AsPaint(nativePaintObj)
-                                            : NULL;
-   SkRect  rect{ left, top, right, bottom };
+   SkPaint*  paint = AsPaint(nativePaintObj);
+   SkRect    rect{ left, top, right, bottom };
    AsCanvas(nativeObj)->drawOval(rect, *paint);
 }
 
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawArc
+ * Signature: (JFFFFFFZJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawArc
+  (JNIEnv *env, jclass cls, jlong nativeObj, jfloat left, jfloat top, jfloat right, jfloat bottom, jfloat startAngle, jfloat sweepAngle, jboolean useCenter, jlong nativePaintObj)
+{
+   SkPaint*  paint = AsPaint(nativePaintObj);
+   SkRect    rect{ left, top, right, bottom };
+   AsCanvas(nativeObj)->drawArc(rect, startAngle, sweepAngle, useCenter, *paint);
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawLine
+ * Signature: (JFFFFJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawLine
+  (JNIEnv *env, jclass cls, jlong nativeObj, jfloat x0, jfloat y0, jfloat x1, jfloat y1, jlong nativePaintObj)
+{
+   SkPaint*  paint = AsPaint(nativePaintObj);
+   AsCanvas(nativeObj)->drawLine(x0, y0, x1, y1, *paint);
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawPoint
+ * Signature: (JFFJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPoint
+  (JNIEnv *env, jclass cls, jlong nativeObj, jfloat x, jfloat y, jlong nativePaintObj)
+{
+   SkPaint*  paint = AsPaint(nativePaintObj);
+   AsCanvas(nativeObj)->drawPoint(x, y, *paint);
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawPoints
+ * Signature: (JII[FJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPoints
+  (JNIEnv *env, jclass cls, jlong nativeObj, jint pointMode, jint count, jfloatArray pts, jlong nativePaintObj)
+{
+   SkPaint*  paint = AsPaint(nativePaintObj);
+
+   // Get a pointer to the byte data and pin the buffer in the VM so it is not GC'd
+	jfloat*  fptr = env->GetFloatArrayElements(pts, NULL);
+	if (fptr == NULL)
+	  return;  // return without doing anything
+
+	// Create the SkPoint array that the next call needs
+	SkPoint*  skpts = (SkPoint*) malloc(count * sizeof(SkPoint));
+	jfloat*   from = fptr;
+	SkPoint*  to = skpts;
+	for (int i = 0; i < count; i++) {
+		to->set(from[0], from[1]);
+		to++;
+		from += 2;
+	}
+
+   // Un-pin the float array memory
+   env->ReleaseFloatArrayElements(pts, fptr, JNI_ABORT);
+
+   // call drawPoints()
+   AsCanvas(nativeObj)->drawPoints(static_cast<SkCanvas::PointMode>(pointMode), count, skpts, *paint);
+
+   // Free our temp SkPoints array buffer
+   free(skpts);
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawImage
+ * Signature: (JJFFJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawImage
+  (JNIEnv *env, jclass cls, jlong nativeObj, jlong imageNativeObj, jfloat left, jfloat top, jlong nativePaintObj)
+{
+	SkImage*  image = AsImage(imageNativeObj);
+   SkPaint*  paint = AsPaint(nativePaintObj);
+   AsCanvas(nativeObj)->drawImage(image, left, top, paint);
+}
 
