@@ -2,14 +2,15 @@ package com.caverock.skia4j;
 
 public class SkPaint  implements AutoCloseable
 {
-   private int      color = 0xff000000;   // Opaque black
-   private boolean  isAntialias = false;
-   private boolean  isDither = false;
-   private Cap      strokeCap = Cap.Butt;
-   private Join     strokeJoin = Join.Miter;
-   private float    strokeMiter = 4f;
-   private float    strokeWidth = 0f;
-   private Style    style = Style.Fill;
+   private int              color = 0xff000000;   // Opaque black
+   private boolean          isAntialias = false;
+   private boolean          isDither = false;
+   private Cap              strokeCap = Cap.Butt;
+   private Join             strokeJoin = Join.Miter;
+   private float            strokeMiter = 4f;
+   private float            strokeWidth = 0f;
+   private SkFilterQuality  filterQuality = SkFilterQuality.kNone;
+   private Style            style = Style.Fill;
 
    // Reference to the native sk_image_info object
    private long  nRef = 0;
@@ -51,6 +52,10 @@ public class SkPaint  implements AutoCloseable
     *    shader : NULL<br>
     *    maskfilter : NULL<br>
     *    xfermode_mode : SRCOVER_SK_XFERMODE_MODE<br>
+    *    font size : 12,
+    *    hinting : normal
+    *    blend mode :  srcOver
+    *    filter quality : kNone
     */
    public SkPaint()
    {
@@ -205,6 +210,22 @@ public class SkPaint  implements AutoCloseable
    //--------------------------------------------------------------------------
 
 
+   public SkFilterQuality getFilterQuality()
+   {
+      return filterQuality;
+   }
+
+
+   public void setFilterQuality(SkFilterQuality filterQuality)
+   {
+      nSkPaintSetFilterQuality(nRef, filterQuality.ordinal());
+      this.filterQuality = filterQuality;
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
    public Style  getStyle()
    {
       return style;
@@ -255,6 +276,7 @@ public class SkPaint  implements AutoCloseable
    native private static void  nSkPaintSetStrokeMiter(long ref, float miterLimit);
    native private static void  nSkPaintSetStrokeCap(long ref, int cap);
    native private static void  nSkPaintSetStrokeJoin(long ref, int join);
+   native private static void  nSkPaintSetFilterQuality(long ref, int filterQuality);
    native private static void  nSkPaintSetStyle(long ref, int style);
 
 

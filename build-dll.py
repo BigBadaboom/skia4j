@@ -25,6 +25,7 @@ JNI_H_FILE_ARCH_DIR = os.path.join(os.environ['JAVA_HOME'], "include", "win32")
 SKIA_HEADERS_CONFIG_DIR = os.path.join("external", "skia")
 
 WIN64_SKIA_LIB = os.path.join("native","win64","skia-win-x64.lib")
+WIN64_SKIA4J_BUILD_DIR = os.path.join("native","build", "win-x64","")   # outpu folder for .obj files
 WIN64_SKIA4J_OUTPUT_FILE = os.path.join("native","out", "skia4j-win-x64.dll")
 
 # Required by Windows builds of Skia
@@ -54,7 +55,7 @@ def compileDLL():
 
   #cl -Ic:\java\include -Ic:\java\include\win32 -MD -LD HelloWorld.c -FeHelloWorld.dll
   #cmd = "%s /I%s /I%s /I%s %s %s /Fe%s" % (CC_LINKER, CC_STD_HEADER_DIR, JAVA_H_DEST_DIR, WIN64_SKIA_LIB_DIR, CC_LINKER_FLAGS, " ".join(srcFiles), WIN64_SKIA4J_LIB_FILE)
-  cmd = "%s %s %s %s %s %s /Fe%s /link" % (CC_LINKER, includes, CC_LINKER_FLAGS, " ".join(srcFiles), WIN64_SKIA_LIB, WINDOWS_LIBS, WIN64_SKIA4J_OUTPUT_FILE)
+  cmd = "%s %s %s %s %s %s /Fo%s /Fe%s /link" % (CC_LINKER, includes, CC_LINKER_FLAGS, " ".join(srcFiles), WIN64_SKIA_LIB, WINDOWS_LIBS, WIN64_SKIA4J_BUILD_DIR, WIN64_SKIA4J_OUTPUT_FILE)
   sys.stdout.write(cmd + "\n")
 
   res = os.system(cmd)

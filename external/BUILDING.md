@@ -46,34 +46,29 @@ Copy skia.lib to its final location
 $ cp out/Static/skia.lib ../../native/win64/skia-win-x64.lib
 
 
-Now switch to a windows prompt and build the DLL with:
+
+
+Now switch to a windows prompt.
+
+Set up build environment using:
+
+> C:
+> "\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+> cd <Skia4J dir>
+
+Then build the DLL with:
 
 > python build-dll.py
 
 
+When devloping, if you have changed the code to add new native methods, you'll need to generate the JNI include files with:
 
+> python build-javah.py
 
-
-
-
-
-
-----------------------OLD----------------------
-(Optional) Run gn to generate gn debug data
-$ bin/gn gen out/Debug --args='is_official_build=true win_vc="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC"'
-Done. Made 50 targets from 36 files in 576ms
-
-Now you can get a list of all gn settings using:
-$ bin/gn args out/Debug --list
+Then update the .cpp files nad rebuild using build-dll.py
 
  
-Run gn to generate Ninja build files
-> bin\gn gen out/Shared "--args=is_official_build=true is_component_build=true skia_use_system_expat=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false win_vc="""C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC""""
 
-or to build with clang use: (git bash version)
-> bin\gn gen out/Shared --args='is_official_build=true target_os="win" target_cpu="x64" skia_use_system_expat=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false win_vc="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC" clang_win="C:\Program Files\LLVM"'
 
-$ bin/gn gen out/Shared --args='is_official_build=true target_os="win" target_cpu="x64" skia_use_system_expat=false skia_use_system_libjpeg_turbo=false skia_use_system_libpng=false skia_use_system_libwebp=false skia_use_system_zlib=false cc="clang" cxx="clang++" clang_win="C:\Program Files\LLVM" win_vc="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC"'
 
-Compile and link Skia
-> ..\depot_tools\ninja -C out/Shared
+

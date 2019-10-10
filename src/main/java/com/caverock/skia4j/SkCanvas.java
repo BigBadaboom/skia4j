@@ -23,6 +23,31 @@ public class SkCanvas
    }
 
 
+   /**
+    * Controls the behavior at the edge of the src-rect, when specified in drawImageRect, trading off speed for exactness.
+    *
+    * When filtering is enabled (in the Paint), skia may need to sample in a neighborhood around the pixels in the image.
+    * If there is a src-rect specified, it is intended to restrict the pixels that will be read. However, for performance
+    * reasons, some implementations may slow down if they cannot read 1-pixel past the src-rect boundary at times.
+    *
+    * This enum allows the caller to specify if such a 1-pixel "slop" will be visually acceptable. If it is, the caller
+    * should pass kFast, and it may result in a faster draw. If the src-rect must be strictly respected, the caller
+    * should pass kStrict.
+    */
+   public enum SrcRectConstraint
+   {
+      /**
+       * If kStrict is specified, the implementation must respect the src-rect (if specified) strictly, and will never
+       * sample outside of those bounds during sampling even when filtering.  This may be slower than kFast.
+       */
+      kStrict,
+      /**
+       * If kFast is specified, the implementation may sample outside of the src-rect (if specified) by half the width
+       * of the filter.  This allows greater flexibility to the implementation and can make the draw much faster.
+       */
+      kFast
+   }
+
    //--------------------------------------------------------------------------
 
 
@@ -246,22 +271,47 @@ public class SkCanvas
    }
 
 
+   /**
+    * Replace the current matrix with a copy of the specified matrix.
+    * 
+    * @param matrix The replacement transform matrix.
+    */
+   public void  setMatrix(SkMatrix matrix) {
+      if (matrix == null)
+         return;
+      float[]  mat = matrix.getMatrix();
+      // More efficient to pass the array elements rather than unmarshalling in the C code
+      nSkCanvasSetMatrix(nRef, mat[0], mat[1], mat[2], mat[3], mat[4], mat[5], mat[6], mat[7], mat[8]);
+   }
+
+
+   /**
+    * Resets the current matrix to tyhe identity matrix.
+    */
+   public void  resetMatrix() {
+      nSkCanvasResetMatrix(nRef);
+   }
+
+
    //--------------------------------------------------------------------------
    // Drawing operations
 
 
-   public void  drawColor(int color)
+   public void clear(int color)
    {
-      try (SkPaint paint = new SkPaint())
-      {
-         paint.setColor(color);
-         nSkCanvasDrawPaint(nRef, paint.nativeRef());
-      }
-      catch (Exception e)
-      {
-         // FIXME decide what to do about these situations
-         System.out.println("Exception closing resource: " + e.getMessage());
-      }
+      nSkCanvasClear(nRef, color);
+   }
+
+
+   public void drawColor(int color, SkBlendMode blendMode)
+   {
+      nSkCanvasDrawColor(nRef, color, blendMode.ordinal());
+   }
+
+
+   public void drawPaint(SkPaint paint)
+   {
+      nSkCanvasDrawPaint(nRef, paint.nativeRef());
    }
 
 
@@ -302,22 +352,6 @@ public class SkCanvas
    public void drawOval(SkRect rect, SkPaint paint)
    {
       nSkCanvasDrawOval(nRef, rect.getLeft(), rect.getTop(), rect.getRight(), rect.getBottom(), paint.nativeRef());
-   }
-
-
-
-   /**
-    * Draw the specified image, with its top/left corner at (x,y), using the specified paint, transformed by the current matrix.
-    * 
-    * @param image the image to be drawn to the canvas.
-    * @param left the X position
-    * @param top the Y position
-    * @param paint  The paint used to draw the image. May be null.
-    */
-   public void drawImage(SkImage image, float left, float top, SkPaint paint)
-   {
-      long  paintRef = (paint != null) ? paint.nativeRef() : 0;
-      nSkCanvasDrawImage(nRef, image.nativeRef(), left, top, paintRef);
    }
 
 
@@ -422,6 +456,86 @@ public class SkCanvas
 
 
 
+   /**
+    * Draw the specified image, with its top/left corner at (x,y), using the specified paint, transformed by the current matrix.
+    * 
+    * If paint is supplied, apply SkColorFilter, alpha, SkImageFilter, SkBlendMode, and SkDrawLooper. If image is SkColorType.kAlpha_8,
+    * apply SkShader. If paint contains SkMaskFilter, generate mask from image bounds. If generated mask extends beyond image bounds,
+    * replicate image edge colors, just as SkShader made from SkImage::makeShader with SkShader::kClamp_TileMode set replicates
+    * the image edge color when it samples outside of its bounds.
+    * 
+    * @param image the image to be drawn to the canvas.
+    * @param left the X position
+    * @param top the Y position
+    * @param paint  The paint used to draw the image. May be null.
+    */
+   public void drawImage(SkImage image, float left, float top, SkPaint paint)
+   {
+      long  paintRef = (paint != null) ? paint.nativeRef() : 0;
+      nSkCanvasDrawImage(nRef, image.nativeRef(), left, top, paintRef);
+   }
+
+
+
+   /**
+    * Draw the specified image, scaling and translating so that it fills the specified dst rect.
+    *
+    * If the src rect is non-null, only that subset of the image is transformed and drawn.
+    * 
+    * @param image The image to be drawn to the canvas.
+    * @param src The subset of the image to be drawn. Optional.
+    * @param dst The destination rectangle where the scaled/translated image will be drawn
+    * @param paint  The paint used to draw the image. May be null.
+    * @param constraint Control the tradeoff between speed and exactness w.r.t. the src rect. Defaults to {@code kStrict}.
+    */
+   public void drawImageRect(SkImage image, SkRect src, SkRect dst, SkPaint paint, SrcRectConstraint constraint)
+   {
+      long  paintRef = (paint != null) ? paint.nativeRef() : 0;
+      if (constraint == null)
+         constraint = SrcRectConstraint.kStrict;
+      if (src != null) {
+         nSkCanvasDrawImageRect(nRef, image.nativeRef(),
+                                src.getLeft(), src.getTop(), src.getRight(), src.getBottom(),
+                                dst.getLeft(), dst.getTop(), dst.getRight(), dst.getBottom(),
+                                paintRef, constraint.ordinal());
+      } else {
+         nSkCanvasDrawImageRect(nRef, image.nativeRef(),
+                                0f, 0f, (float) image.getWidth(), (float) image.getHeight(),
+                                dst.getLeft(), dst.getTop(), dst.getRight(), dst.getBottom(),
+                                paintRef, constraint.ordinal());
+      }
+   }
+
+
+
+   /**
+    * <p>Write pixel values onto the canvas.</p>
+    * 
+    * <p>This method affects the pixels in the base-layer, and operates in pixel coordinates, ignoring the matrix and clip.</p>
+    * 
+    * <p>The specified ImageInfo and (x,y) offset specifies a rectangular target equivalent to (x, y, info.width(), info.height().
+    * The target is intersected with the bounds of the base-layer. If this intersection is not empty, then this call
+    * replaces the surface pixels with the corresponding provided pixels, performing any colortype/alphatype transformations needed.</p>
+    * 
+    * <p>This call can fail, returning false, for several reasons:</p>
+    * <ul>
+    * <li>If the src colortype/alphatype cannot be converted to the canvas' types
+    * <li>If this canvas is not backed by pixels (e.g. picture or PDF)
+    * </ul>
+    * 
+    * @param info Details of the colour type, alpha type, and colour space of the provided pixels
+    * @param pixels An one dimensional {@code int} array of pixel values
+    * @param pixelsPerRow The number of pixels per row in {@code pixels}.  The difference in array index
+    *                     between the start of one row and the start of the next.
+    * @param x The X coordinate of the position on the canvas to place this image data
+    * @param y The Y coordinate of the position on the canvas to place this image data
+    * @return true if the pixels were successfully written to the canvas
+    */
+   public boolean writePixels(SkImageInfo info, int[] pixels, int pixelsPerRow, int x, int y)
+   {
+      return nSkCanvasWritePixelsInt(nRef, info.nativeRef(), pixels, pixelsPerRow, x, y);
+   }
+
    
 
    //--------------------------------------------------------------------------
@@ -449,9 +563,14 @@ public class SkCanvas
    native private static void  nSkCanvasRotate(long canvas, float degrees, float px, float py);
    native private static void  nSkCanvasSkew(long canvas, float sx, float sy);
    native private static void  nSkCanvasConcat(long canvas, float m0, float m1, float m2, float m3, float m4, float m5, float m6, float m7, float m8);
+   native private static void  nSkCanvasSetMatrix(long canvas, float m0, float m1, float m2, float m3, float m4, float m5, float m6, float m7, float m8);
+   native private static void  nSkCanvasResetMatrix(long canvas);
 
 
+   native private static void  nSkCanvasClear(long canvas, int colour);
+   native private static void  nSkCanvasDrawColor(long canvas, int colour, int blendMode);
    native private static void  nSkCanvasDrawPaint(long canvas, long paint);
+
    native private static void  nSkCanvasDrawRect(long canvas, float left, float top, float right, float bottom, long paint);
    native private static void  nSkCanvasDrawCircle(long canvas, float cx, float cy, float radius, long paint);
    native private static void  nSkCanvasDrawOval(long canvas, float left, float top, float right, float bottom, long paint);
@@ -461,5 +580,8 @@ public class SkCanvas
    native private static void  nSkCanvasDrawPoints(long canvas, int mode, int count, float[] pts, long paint);
 
    native private static void  nSkCanvasDrawImage(long canvas, long image, float left, float top, long paint);
+   native private static void  nSkCanvasDrawImageRect(long canvas, long image, float srcLeft, float srcTop, float srcRight, float srcBottom, float dstLeft, float dstTop, float dstRight, float dstBottom, long paint, int constraint);
+
+   native private static boolean nSkCanvasWritePixelsInt(long canvas, long imageInfo, int[] pixels, int pixelsPerRow, int x, int y);
 
 }

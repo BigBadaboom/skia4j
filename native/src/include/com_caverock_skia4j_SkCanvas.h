@@ -121,6 +121,38 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasConcat
 
 /*
  * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasSetMatrix
+ * Signature: (JFFFFFFFFF)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasSetMatrix
+  (JNIEnv *, jclass, jlong, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasResetMatrix
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasResetMatrix
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasClear
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasClear
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawColor
+ * Signature: (JII)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawColor
+  (JNIEnv *, jclass, jlong, jint, jint);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
  * Method:    nSkCanvasDrawPaint
  * Signature: (JJ)V
  */
@@ -190,6 +222,22 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPoints
  */
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawImage
   (JNIEnv *, jclass, jlong, jlong, jfloat, jfloat, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawImageRect
+ * Signature: (JJFFFFFFFFJI)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawImageRect
+  (JNIEnv *, jclass, jlong, jlong, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jfloat, jlong, jint);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasWritePixelsInt
+ * Signature: (JJ[IIII)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasWritePixelsInt
+  (JNIEnv *, jclass, jlong, jlong, jintArray, jint, jint, jint);
 
 #ifdef __cplusplus
 }

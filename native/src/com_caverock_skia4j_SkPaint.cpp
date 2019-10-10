@@ -120,6 +120,19 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetStrokeJoin
 
 /*
  * Class:     com_caverock_skia4j_SkPaint
+ * Method:    nSkPaintSetFilterQuality
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetFilterQuality
+  (JNIEnv *env, jclass cls, jlong nativeObj, jint filterQuality)
+{
+	SkFilterQuality  skQuality = static_cast<SkFilterQuality>(filterQuality);
+	AsPaint(nativeObj)->setFilterQuality(skQuality);
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkPaint
  * Method:    nSkPaintSetStyle
  * Signature: (JI)V
  */

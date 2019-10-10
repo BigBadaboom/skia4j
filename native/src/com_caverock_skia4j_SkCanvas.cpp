@@ -187,6 +187,55 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasConcat
 
 /*
  * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasSetMatrix
+ * Signature: (JFFFFFFFFF)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasSetMatrix
+  (JNIEnv *env, jclass cls, jlong nativeObj, jfloat m0, jfloat m1, jfloat m2, jfloat m3, jfloat m4, jfloat m5, jfloat m6, jfloat m7, jfloat m8)
+{
+   const SkMatrix  m = SkMatrix::MakeAll(m0, m1, m2, m3, m4, m5, m6, m7, m8);
+   AsCanvas(nativeObj)->setMatrix(m);
+}
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasResetMatrix
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasResetMatrix
+  (JNIEnv *env, jclass cls, jlong nativeObj)
+{
+   AsCanvas(nativeObj)->resetMatrix();
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasClear
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasClear
+  (JNIEnv *env, jclass cls, jlong nativeObj, jint colour)
+{
+   AsCanvas(nativeObj)->clear((SkColor) colour);
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawColor
+ * Signature: (JII)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawColor
+  (JNIEnv *env, jclass cls, jlong nativeObj, jint colour, jint blendMode)
+{
+	SkBlendMode  skBlendMode = static_cast<SkBlendMode>(blendMode);
+   AsCanvas(nativeObj)->drawColor((SkColor) colour, skBlendMode);
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
  * Method:    nSkCanvasDrawPaint
  * Signature: (JJ)V
  */
@@ -327,4 +376,45 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawImage
    SkPaint*  paint = AsPaint(nativePaintObj);
    AsCanvas(nativeObj)->drawImage(image, left, top, paint);
 }
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawImageRect
+ * Signature: (JJFFFFFFFFJI)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawImageRect
+  (JNIEnv *env, jclass cls, jlong nativeObj, jlong imageNativeObj,
+   jfloat srcLeft, jfloat srcTop, jfloat srcRight, jfloat srcBottom,
+	jfloat dstLeft, jfloat dstTop, jfloat dstRight, jfloat dstBottom,
+	jlong nativePaintObj, jint constraint)
+{
+	SkImage*  image = AsImage(imageNativeObj);
+   SkPaint*  paint = AsPaint(nativePaintObj);
+   SkRect    src{ srcLeft, srcTop, srcRight, srcBottom };
+   SkRect    dst{ dstLeft, dstTop, dstRight, dstBottom };
+   AsCanvas(nativeObj)->drawImageRect(image, src, dst, paint, static_cast<SkCanvas::SrcRectConstraint>(constraint));
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasWritePixelsInt
+ * Signature: (JJ[IIII)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasWritePixelsInt
+  (JNIEnv *env, jclass cls, jlong nativeObj, jlong imageInfo, jintArray pixels, jint pixelsPerRow, jint x, jint y)
+{
+   SkImageInfo*  info = AsImageInfo(imageInfo);
+
+	// Get a pointer to the byte data and pin the buffer in the VM so it is not GC'd
+	jint*  iptr = env->GetIntArrayElements(pixels, NULL);
+	if (iptr == NULL)
+	  return false;
+
+   bool result = AsCanvas(nativeObj)->writePixels(*info, (void *) iptr, pixelsPerRow * sizeof(jint), x, y);
+   env->ReleaseIntArrayElements(pixels, iptr, JNI_ABORT);
+   return result;
+}
+
 
