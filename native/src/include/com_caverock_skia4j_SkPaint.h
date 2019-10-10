@@ -33,6 +33,14 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetAntialias
 
 /*
  * Class:     com_caverock_skia4j_SkPaint
+ * Method:    nSkPaintSetBlendMode
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetBlendMode
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_caverock_skia4j_SkPaint
  * Method:    nSkPaintSetColor
  * Signature: (JI)V
  */
@@ -46,6 +54,14 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetColor
  */
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetDither
   (JNIEnv *, jclass, jlong, jboolean);
+
+/*
+ * Class:     com_caverock_skia4j_SkPaint
+ * Method:    nSkPaintSetFilterQuality
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetFilterQuality
+  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     com_caverock_skia4j_SkPaint
@@ -77,14 +93,6 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetStrokeCap
  * Signature: (JI)V
  */
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetStrokeJoin
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     com_caverock_skia4j_SkPaint
- * Method:    nSkPaintSetFilterQuality
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetFilterQuality
   (JNIEnv *, jclass, jlong, jint);
 
 /*

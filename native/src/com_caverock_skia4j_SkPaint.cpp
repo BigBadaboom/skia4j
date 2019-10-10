@@ -100,8 +100,7 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetStrokeMiter
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetStrokeCap
   (JNIEnv *env, jclass cls, jlong nativeObj, jint strokeCap)
 {
-	SkPaint::Cap  cap = static_cast<SkPaint::Cap>(strokeCap);
-	AsPaint(nativeObj)->setStrokeCap(cap);
+	AsPaint(nativeObj)->setStrokeCap( static_cast<SkPaint::Cap>(strokeCap) );
 }
 
 
@@ -113,8 +112,7 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetStrokeCap
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetStrokeJoin
   (JNIEnv *env, jclass cls, jlong nativeObj, jint strokeJoin)
 {
-	SkPaint::Join  join = static_cast<SkPaint::Join>(strokeJoin);
-	AsPaint(nativeObj)->setStrokeJoin(join);
+	AsPaint(nativeObj)->setStrokeJoin( static_cast<SkPaint::Join>(strokeJoin) );
 }
 
 
@@ -126,8 +124,7 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetStrokeJoin
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetFilterQuality
   (JNIEnv *env, jclass cls, jlong nativeObj, jint filterQuality)
 {
-	SkFilterQuality  skQuality = static_cast<SkFilterQuality>(filterQuality);
-	AsPaint(nativeObj)->setFilterQuality(skQuality);
+	AsPaint(nativeObj)->setFilterQuality( static_cast<SkFilterQuality>(filterQuality) );
 }
 
 
@@ -139,7 +136,18 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetFilterQuality
 JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetStyle
   (JNIEnv *env, jclass cls, jlong nativeObj, jint style)
 {
-	SkPaint::Style  skStyle = static_cast<SkPaint::Style>(style);
-	AsPaint(nativeObj)->setStyle(skStyle);
+	AsPaint(nativeObj)->setStyle( static_cast<SkPaint::Style>(style) );
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkPaint
+ * Method:    nSkPaintSetBlendMode
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkPaint_nSkPaintSetBlendMode
+  (JNIEnv *env, jclass cls, jlong nativeObj, jint blendMode)
+{
+	AsPaint(nativeObj)->setBlendMode( static_cast<SkBlendMode>(blendMode) );
 }
 

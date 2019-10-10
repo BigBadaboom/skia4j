@@ -2,6 +2,7 @@ package com.caverock.skia4j;
 
 public enum SkBlendMode
 {
+   // Porter-Duff blend modes
    kClear,                           //!< replaces destination with zero: fully transparent
    kSrc,                             //!< replaces destination
    kDst,                             //!< preserves destination
@@ -17,7 +18,8 @@ public enum SkBlendMode
    kPlus,                            //!< sum of colors
    kModulate,                        //!< product of premultiplied colors; darkens destination
    kScreen,                          //!< multiply inverse of pixels, inverting result; brightens destination
-   //kLastCoeffMode     = kScreen,     //!< last porter duff blend mode
+   
+   // Other blend modes
    kOverlay,                         //!< multiply or screen, depending on destination
    kDarken,                          //!< darker of source and destination
    kLighten,                         //!< lighter of source and destination
@@ -28,10 +30,9 @@ public enum SkBlendMode
    kDifference,                      //!< subtract darker from lighter with higher contrast
    kExclusion,                       //!< subtract darker from lighter with lower contrast
    kMultiply,                        //!< multiply source with destination, darkening image
-   //kLastSeparableMode = kMultiply,   //!< last blend mode operating separately on components
+
    kHue,                             //!< hue of source with saturation and luminosity of destination
    kSaturation,                      //!< saturation of source with hue and luminosity of destination
    kColor,                           //!< hue and saturation of source with luminosity of destination
    kLuminosity,                      //!< luminosity of source with hue and saturation of destination
-   //kLastMode          = kLuminosity, //!< last valid value
 }

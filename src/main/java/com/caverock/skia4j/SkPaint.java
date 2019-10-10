@@ -11,6 +11,8 @@ public class SkPaint  implements AutoCloseable
    private float            strokeWidth = 0f;
    private SkFilterQuality  filterQuality = SkFilterQuality.kNone;
    private Style            style = Style.Fill;
+   private SkBlendMode      blendMode = SkBlendMode.kSrcOver;
+
 
    // Reference to the native sk_image_info object
    private long  nRef = 0;
@@ -115,6 +117,22 @@ public class SkPaint  implements AutoCloseable
    //--------------------------------------------------------------------------
 
 
+   public SkBlendMode getBlendMode()
+   {
+      return blendMode;
+   }
+
+
+   public void setBlendMode(SkBlendMode blendMode)
+   {
+      nSkPaintSetBlendMode(nRef, blendMode.ordinal());
+      this.blendMode = blendMode;
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
    public int  getColor()
    {
       return this.getColor();
@@ -140,6 +158,22 @@ public class SkPaint  implements AutoCloseable
    public boolean  isDither()
    {
       return isDither;
+   }
+
+
+   //--------------------------------------------------------------------------
+
+
+   public SkFilterQuality getFilterQuality()
+   {
+      return filterQuality;
+   }
+
+
+   public void setFilterQuality(SkFilterQuality filterQuality)
+   {
+      nSkPaintSetFilterQuality(nRef, filterQuality.ordinal());
+      this.filterQuality = filterQuality;
    }
 
 
@@ -210,22 +244,6 @@ public class SkPaint  implements AutoCloseable
    //--------------------------------------------------------------------------
 
 
-   public SkFilterQuality getFilterQuality()
-   {
-      return filterQuality;
-   }
-
-
-   public void setFilterQuality(SkFilterQuality filterQuality)
-   {
-      nSkPaintSetFilterQuality(nRef, filterQuality.ordinal());
-      this.filterQuality = filterQuality;
-   }
-
-
-   //--------------------------------------------------------------------------
-
-
    public Style  getStyle()
    {
       return style;
@@ -270,13 +288,14 @@ public class SkPaint  implements AutoCloseable
    native private static void  nSkPaintDelete(long ref);
 
    native private static void  nSkPaintSetAntialias(long ref, boolean isAntialias);
+   native private static void  nSkPaintSetBlendMode(long ref, int blendMode);
    native private static void  nSkPaintSetColor(long ref, int color);
    native private static void  nSkPaintSetDither(long ref, boolean isDither);
+   native private static void  nSkPaintSetFilterQuality(long ref, int filterQuality);
    native private static void  nSkPaintSetStrokeWidth(long ref, float width);
    native private static void  nSkPaintSetStrokeMiter(long ref, float miterLimit);
    native private static void  nSkPaintSetStrokeCap(long ref, int cap);
    native private static void  nSkPaintSetStrokeJoin(long ref, int join);
-   native private static void  nSkPaintSetFilterQuality(long ref, int filterQuality);
    native private static void  nSkPaintSetStyle(long ref, int style);
 
 
