@@ -239,6 +239,14 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawImageRect
 JNIEXPORT jboolean JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasWritePixelsInt
   (JNIEnv *, jclass, jlong, jlong, jintArray, jint, jint, jint);
 
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasReadPixelsInt
+ * Signature: (JJ[IIII)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasReadPixelsInt
+  (JNIEnv *, jclass, jlong, jlong, jintArray, jint, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif

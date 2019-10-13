@@ -407,7 +407,7 @@ JNIEXPORT jboolean JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasWritePixel
 {
    SkImageInfo*  info = AsImageInfo(imageInfo);
 
-	// Get a pointer to the byte data and pin the buffer in the VM so it is not GC'd
+	// Get a pointer to the int data and pin the buffer in the VM so it is not GC'd
 	jint*  iptr = env->GetIntArrayElements(pixels, NULL);
 	if (iptr == NULL)
 	  return false;
@@ -416,5 +416,27 @@ JNIEXPORT jboolean JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasWritePixel
    env->ReleaseIntArrayElements(pixels, iptr, JNI_ABORT);
    return result;
 }
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasReadPixelsInt
+ * Signature: (JJ[IIII)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasReadPixelsInt
+  (JNIEnv *env, jclass cls, jlong nativeObj, jlong dstInfo, jintArray dstPixels, jint dstPixelsPerRow, jint srcX, jint srcY)
+{
+   SkImageInfo*  info = AsImageInfo(dstInfo);
+
+	// Get a pointer to the int data and pin the buffer in the VM so it is not GC'd
+	jint*  iptr = env->GetIntArrayElements(dstPixels, NULL);
+	if (iptr == NULL)
+	  return false;
+
+   bool result = AsCanvas(nativeObj)->readPixels(*info, (void *) iptr, dstPixelsPerRow * sizeof(jint), srcX, srcY);
+   env->ReleaseIntArrayElements(dstPixels, iptr, 0);
+   return result;
+}
+
 
 

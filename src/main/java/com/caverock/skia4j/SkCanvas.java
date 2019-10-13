@@ -509,7 +509,7 @@ public class SkCanvas
 
 
    /**
-    * <p>Write pixel values onto the canvas.</p>
+    * <p>Write raw pixel values onto the canvas.</p>
     * 
     * <p>This method affects the pixels in the base-layer, and operates in pixel coordinates, ignoring the matrix and clip.</p>
     * 
@@ -524,7 +524,7 @@ public class SkCanvas
     * </ul>
     * 
     * @param info Details of the colour type, alpha type, and colour space of the provided pixels
-    * @param pixels An one dimensional {@code int} array of pixel values
+    * @param pixels A one dimensional {@code int} array of pixel values
     * @param pixelsPerRow The number of pixels per row in {@code pixels}.  The difference in array index
     *                     between the start of one row and the start of the next.
     * @param x The X coordinate of the position on the canvas to place this image data
@@ -537,6 +537,42 @@ public class SkCanvas
    }
 
    
+
+   /**
+    * <p>Read raw pixel values from the canvas.</p>
+    * 
+    * <p>Copy the pixels from the canvas into the specified buffer, converting them into the requested format.</p>
+    * 
+    * <p>The surface pixels are read starting at the specified (srcX,srcY) location in the coordinate system of the base-layer.</p>
+    * 
+    * <p>The specified ImageInfo and (x,y) offset specifies a source rectangle equivalent to (x, y, info.width(), info.height().
+    * The source rectangle is intersected with the bounds of the base-layer. If this intersection is not empty, then this call
+    * copies the pixels into the {@code dstPixels} array, performing any colortype/alphatype transformations needed.</p>
+    * 
+    * <p>This call can fail, returning false, for several reasons:</p>
+    * <ul>
+    * <li>The source rectangle does not intersect the base-layer bounds
+    * <li>If the requested colortype/alphatype cannot be converted from the canvas' types
+    * <li>If this canvas is not backed by pixels (e.g. picture or PDF)
+    * </ul>
+    * 
+    * @param dstInfo Details of the colour type, alpha type, and colour space of the destination pixels
+    * @param dstPixels A one dimensional {@code int} array for the pixel values
+    * @param dstPixelsPerRow The number of pixels per row in {@code pixels}.  The difference in array index
+    *                        between the start of one row and the start of the next.
+    * @param srcX The X coordinate of the position on the canvas to copy the pixel values from
+    * @param srcY The Y coordinate of the position on the canvas to copy the pixel values from
+    * @return true if the pixels were successfully read from the canvas
+    */
+   public boolean readPixels(SkImageInfo dstInfo, int[] dstPixels, int dstPixelsPerRow, int srcX, int srcY)
+   {
+      // Space check
+      if (dstPixels.length < (dstInfo.getHeight() * dstPixelsPerRow))
+         return false;
+      return nSkCanvasReadPixelsInt(nRef, dstInfo.nativeRef(), dstPixels, dstPixelsPerRow, srcX, srcY);
+   }
+
+
 
    //--------------------------------------------------------------------------
    // Native methods
@@ -583,5 +619,6 @@ public class SkCanvas
    native private static void  nSkCanvasDrawImageRect(long canvas, long image, float srcLeft, float srcTop, float srcRight, float srcBottom, float dstLeft, float dstTop, float dstRight, float dstBottom, long paint, int constraint);
 
    native private static boolean nSkCanvasWritePixelsInt(long canvas, long imageInfo, int[] pixels, int pixelsPerRow, int x, int y);
+   native private static boolean nSkCanvasReadPixelsInt(long canvas, long dstInfo, int[] dstPixels, int dstPixelsPerRow, int srcX, int srcY);
 
 }
