@@ -509,6 +509,26 @@ public class SkCanvas
 
 
    /**
+    * Draws SkPath path using clip, SkMatrix, and SkPaint paint. SkPath contains an array of path contour,
+    * each of which may be open or closed.
+    * 
+    * In paint: {@code SkPaint.Style} determines if the path is stroked or filled: if filled, {@code SkPath.FillType}
+    * determines whether path contour describes inside or outside of fill; if stroked, {@code SkPaint} stroke width
+    * describes the line thickness, {@code SkPaint.Cap} describes line ends, and {@code SkPaint.Join} describes how
+    * corners are drawn.
+    * 
+    * @param path The path to draw
+    * @param paint The color, stroke width, blend etc used to draw
+    */
+   public void  drawPath(SkPath path, SkPaint paint)
+   {
+      long  pathRef = (path != null) ? path.nativeRef() : 0;
+      long  paintRef = (paint != null) ? paint.nativeRef() : 0;
+      nSkCanvasDrawPath(nRef, pathRef, paintRef);
+   }
+   
+   
+   /**
     * <p>Write raw pixel values onto the canvas.</p>
     * 
     * <p>This method affects the pixels in the base-layer, and operates in pixel coordinates, ignoring the matrix and clip.</p>
@@ -614,6 +634,7 @@ public class SkCanvas
    native private static void  nSkCanvasDrawLine(long canvas, float x0, float y0, float x1, float y1, long paint);
    native private static void  nSkCanvasDrawPoint(long canvas, float x, float y, long paint);
    native private static void  nSkCanvasDrawPoints(long canvas, int mode, int count, float[] pts, long paint);
+   native private static void  nSkCanvasDrawPath(long canvas, long path, long paint);
 
    native private static void  nSkCanvasDrawImage(long canvas, long image, float left, float top, long paint);
    native private static void  nSkCanvasDrawImageRect(long canvas, long image, float srcLeft, float srcTop, float srcRight, float srcBottom, float dstLeft, float dstTop, float dstRight, float dstBottom, long paint, int constraint);

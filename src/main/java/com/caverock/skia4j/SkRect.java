@@ -92,7 +92,7 @@ public class SkRect
    @Override
    public String toString()
    {
-      return String.format("(%f %f %f %f, arg1)", left, top, right, bottom);
+      return String.format("(%f %f %f %f)", left, top, right, bottom);
    }
 
 

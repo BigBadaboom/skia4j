@@ -15,6 +15,7 @@ class SkImage;
 class SkImageInfo;
 class SkMaskFilter;
 class SkPaint;
+class SkPath;
 class SkShader;
 class SkSurface;
 class SkSurfaceProps;
@@ -85,13 +86,6 @@ static inline jlong ToImageInfo(SkImageInfo* cinfo) {
 }
 
 
-static inline SkSurfaceProps* AsSurfaceProps(jlong cprops) {
-	if (cprops == 0)
-		return NULL;
-   return reinterpret_cast<SkSurfaceProps*>(cprops);
-}
-
-
 static inline SkPaint* AsPaint(jlong cpaint) {
 	if (cpaint == 0)
 		return NULL;
@@ -105,6 +99,19 @@ static inline jlong ToPaint(SkPaint* cpaint) {
 }
 
 
+static inline SkPath* AsPath(jlong cpath) {
+	if (cpath == 0)
+		return NULL;
+   return reinterpret_cast<SkPath*>(cpath);
+}
+
+static inline jlong ToPath(SkPath* cpath) {
+	if (cpath == NULL)
+		return 0;
+   return reinterpret_cast<jlong>(cpath);
+}
+
+
 static inline SkSurface* AsSurface(jlong csurface) {
 	if (csurface == 0)
 		return NULL;
@@ -115,6 +122,13 @@ static inline jlong ToSurface(SkSurface* csurface) {
 	if (csurface == NULL)
 		return 0;
    return reinterpret_cast<jlong>(csurface);
+}
+
+
+static inline SkSurfaceProps* AsSurfaceProps(jlong cprops) {
+	if (cprops == 0)
+		return NULL;
+   return reinterpret_cast<SkSurfaceProps*>(cprops);
 }
 
 

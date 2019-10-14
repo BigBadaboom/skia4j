@@ -3,6 +3,7 @@
 #include "include/com_caverock_skia4j_SkCanvas.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPath.h"
 #include "types.h"
 
 
@@ -361,6 +362,20 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPoints
 
    // Free our temp SkPoints array buffer
    free(skpts);
+}
+
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawPath
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPath
+  (JNIEnv *env, jclass cls, jlong nativeObj, jlong nativePathObj, jlong nativePaintObj)
+{
+	SkPath*   path = AsPath(nativePathObj);
+   SkPaint*  paint = AsPaint(nativePaintObj);
+   AsCanvas(nativeObj)->drawPath(*path, *paint);
 }
 
 

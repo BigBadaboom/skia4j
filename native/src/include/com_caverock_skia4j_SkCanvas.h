@@ -217,6 +217,14 @@ JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPoints
 
 /*
  * Class:     com_caverock_skia4j_SkCanvas
+ * Method:    nSkCanvasDrawPath
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_com_caverock_skia4j_SkCanvas_nSkCanvasDrawPath
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     com_caverock_skia4j_SkCanvas
  * Method:    nSkCanvasDrawImage
  * Signature: (JJFFJ)V
  */
